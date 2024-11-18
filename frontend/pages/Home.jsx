@@ -1,5 +1,5 @@
 import React, { useState,useEffect, useRef } from "react";
-import { FaFacebook, FaInstagram, FaTiktok, FaEnvelope } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTiktok, FaEnvelope, FaLinkedin } from "react-icons/fa";
 
 function Portfolio() {
   const sectionRefs = useRef([]);
@@ -11,6 +11,16 @@ function Portfolio() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  const myemail = "dimalshapraveen2001@gmail.com";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(myemail).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset the message after 2 seconds
+    });
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
     
@@ -227,6 +237,15 @@ function Portfolio() {
       fontSize: isMobile?"70px":"100px",
       
     },
+    socialIconmail: {
+      alignItems:"center",
+      cursor: "pointer",
+    color: isCopied ? "highlight" : "white",
+      
+      margin: "0 10px",
+      fontSize: isMobile?"70px":"100px",
+      
+    },
 
     h1tag: {
       
@@ -365,7 +384,7 @@ function Portfolio() {
       <footer style={styles.footer}>
         
         <a
-          href="https://www.facebook.com"
+          href="https://web.facebook.com/dimalsha.praveen/"
           target="_blank"
           rel="noopener noreferrer"
           style={styles.socialIcon}
@@ -373,7 +392,7 @@ function Portfolio() {
           <FaFacebook />
         </a>
         <a
-          href="https://www.instagram.com"
+          href="https://www.instagram.com/dimalsha___praveen/"
           target="_blank"
           rel="noopener noreferrer"
           style={styles.socialIcon}
@@ -381,16 +400,17 @@ function Portfolio() {
           <FaInstagram />
         </a>
         <a
-          href="https://www.tiktok.com"
+          href="https://www.linkedin.com/in/dimalsha-praveen-kariyawasam/"
           target="_blank"
           rel="noopener noreferrer"
           style={styles.socialIcon}
         >
-          <FaTiktok />
+          <FaLinkedin />
         </a>
-        <a href="mailto:your-email@example.com" style={styles.socialIcon}>
+        <i  onClick={handleCopy} title="Click to copy email" style={styles.socialIconmail}>
           <FaEnvelope />
-        </a>
+        </i>
+        <p>{isCopied ? "Email copied to clipboard!" : ""}</p>
       </footer>
     </div>
   );
