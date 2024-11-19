@@ -53,7 +53,7 @@ function Portfolio() {
           setPhone('');
           setMessage('');
           
-          
+          window.location.reload(); // Reload the page
         } else {
           alert('Failed to send email.');
         }
@@ -64,7 +64,7 @@ function Portfolio() {
       console.alert(error);
       alert('Error');
     }
-    window.location.reload(); // Reload the page
+    
   };
 
   useEffect(() => {
