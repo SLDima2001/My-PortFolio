@@ -19,7 +19,6 @@ app.get('/', (req, res) => {
   return res.status(200).send("Welcome to MERN stack");
 });
 
-app.use('/feedback', Route);
 app.use('/send-email', emailRoute);
 
 
