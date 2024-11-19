@@ -13,7 +13,9 @@ const app = express();
 
 // Middleware for parsing request body
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*',
+}));
 
 app.get('/', (req, res) => {
   return res.status(200).send("Welcome to MERN stack");
