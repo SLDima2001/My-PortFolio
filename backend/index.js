@@ -14,7 +14,9 @@ const app = express();
 // Middleware for parsing request body
 app.use(express.json());
 app.use(cors({
-  origin: '*',
+  origin: ['https://my-port-folio-pied.vercel.app/?vercelToolbarCode=Ae0q2BGApZaLBw7'],
+  methods:["GET","POST","PUT","DELETE"],
+  credentials: true
 }));
 
 app.get('/', (req, res) => {
