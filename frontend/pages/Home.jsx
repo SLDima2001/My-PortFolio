@@ -57,7 +57,7 @@ function Portfolio() {
         } else {
           alert('Failed to send email.');
         }
-        window.location.reload(); // Reload the page
+        
       } else {
         
       }
@@ -65,7 +65,7 @@ function Portfolio() {
       console.alert(error);
       alert('Error');
     }
-    
+    window.location.reload(); // Reload the page
   };
 
   useEffect(() => {
