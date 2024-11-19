@@ -64,7 +64,7 @@ function Portfolio() {
       console.alert(error);
       alert('Error');
     }
-    window.location.reload(); // Reload the page
+    
   };
 
   useEffect(() => {
