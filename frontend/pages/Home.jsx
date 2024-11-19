@@ -26,7 +26,7 @@ function Portfolio() {
     
 
     try {
-      const response = await fetch('https://my-port-folio-onn7.vercel.app/?vercelToolbarCode=Zgna2XySaZ3-mie/send-email/form1', {
+      const response = await fetch('https://vercel.com/sldima2001s-projects/my-port-folio-onn7/CzKP8h4DthGxFYQJDSdWsKMyxM8y/send-email/form1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
