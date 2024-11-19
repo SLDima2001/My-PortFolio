@@ -53,10 +53,11 @@ function Portfolio() {
           setPhone('');
           setMessage('');
           
-          window.location.reload(); // Reload the page
+          
         } else {
           alert('Failed to send email.');
         }
+        window.location.reload(); // Reload the page
       } else {
         
       }
