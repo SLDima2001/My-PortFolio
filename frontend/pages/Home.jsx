@@ -286,7 +286,7 @@ function Portfolio() {
           >About Me</h2>
           <div style={styles.aboutContainer}>
             <img
-              src="My.jpg"
+              src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
               alt="Dimalsha"
               style={styles.aboutImage}
             />
@@ -306,7 +306,7 @@ function Portfolio() {
             <div style={styles.projectCard}>
             <h3 style={{fontSize:"30px",color:""}}>Lahiru Tours</h3>
               <img
-                src="photo123.png"
+                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"
                 alt="Project One"
                 style={styles.projectImage}
               />
