@@ -316,12 +316,12 @@ function Portfolio() {
             <div style={styles.projectCard}>
             <h3 style={{fontSize:"30px",color:""}}>Yale Art School UI/UX</h3>
               <img
-                src="https://via.placeholder.com/300"
+                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/Project%202.png?raw=true"
                 alt="Project Two"
                 style={styles.projectImage}
               />
               
-              <p>A brief description of Project Two.</p>
+              <p>Creating a Figma UI design for the Yale School of Art involves incorporating both aesthetic and functional elements that align with its identity. The Yale School of Art is known for its creativity, innovation, and prestige, so the design must capture these values. Below is a breakdown of the design considerations and features for the U</p>
             </div>
           </div>
         </section>
