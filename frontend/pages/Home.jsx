@@ -9,9 +9,15 @@ function Portfolio() {
   const [message, setMessage] = useState('');
   const [isHovered, setIsHovered] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-
   const [isCopied, setIsCopied] = useState(false);
+
+
+  const handleDownloadCV = () => {
+    const link = document.createElement('a');
+    link.href = "/Dimalsha Resume.pdf"; // File in the public folder
+    link.download = "Dimalsha Resume.pdf";
+    link.click();
+  };
 
   const myemail = "dimalshapraveen2001@gmail.com";
 
@@ -256,6 +262,20 @@ function Portfolio() {
       transform: isHovered ? "rotate(0deg)" : "rotate(0deg)",
       
     },
+    downloadCVButton: {
+      marginTop: "20px",
+      backgroundColor: "#007bff",
+      color: "#fff",
+      border: "none",
+      padding: "10px 20px",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontSize: "16px",
+      transition: "background-color 0.3s ease",
+    },
+    downloadCVButtonHover: {
+      backgroundColor: "#0056b3",
+    },
    
   };
 
@@ -277,6 +297,16 @@ function Portfolio() {
             Contact
           </a>
         </nav>
+        <button
+            style={styles.downloadCVButton}
+            onMouseEnter={(e) =>
+              (e.target.style.backgroundColor = styles.downloadCVButtonHover.backgroundColor)
+            }
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}
+            onClick={handleDownloadCV}
+          >
+            Download CV
+          </button>
       </header>
 
       <main style={styles.main}>
@@ -379,6 +409,11 @@ function Portfolio() {
               <img style={{height:"500px",width:"1000px",borderRadius:"20px"}} src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Img" />
 
             </div>
+        </section>
+
+        <section>
+
+       
         </section>
       </main>
 
