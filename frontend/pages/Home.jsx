@@ -14,8 +14,8 @@ function Portfolio() {
 
   const handleDownloadCV = () => {
     const link = document.createElement('a');
-    link.href = "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/public/DimalshaResume.pdf"; // File in the public folder
-    link.download = "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/public/DimalshaResume.pdf";
+    link.href = "frontend/public/DimalshaResume.pdf"; // File in the public folder
+    link.download = "frontend/public/DimalshaResume.pdf";
     link.click();
   };
 
