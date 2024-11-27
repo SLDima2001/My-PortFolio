@@ -14,8 +14,8 @@ function Portfolio() {
 
   const handleDownloadCV = () => {
     const link = document.createElement('a');
-    link.href = "frontend/public/Dimalsha Resume.pdf"; // File in the public folder
-    link.download = "frontend/public/Dimalsha Resume.pdf";
+    link.href = "frontend/public/DimalshaResume.pdf"; // File in the public folder
+    link.download = "frontend/public/DimalshaResume.pdf";
     link.click();
   };
 
