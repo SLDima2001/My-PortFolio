@@ -297,16 +297,7 @@ function Portfolio() {
             Contact
           </a>
         </nav>
-        <button
-            style={styles.downloadCVButton}
-            onMouseEnter={(e) =>
-              (e.target.style.backgroundColor = styles.downloadCVButtonHover.backgroundColor)
-            }
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}
-            onClick={handleDownloadCV}
-          >
-            Download CV
-          </button>
+       
       </header>
 
       <main style={styles.main}>
