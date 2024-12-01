@@ -315,6 +315,7 @@ function Portfolio() {
          
           >About Me</h2>
           <div style={styles.aboutContainer}>
+            
             <img
               src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
               alt="Dimalsha"
@@ -333,6 +334,8 @@ function Portfolio() {
         <section id="projects" style={styles.section2} ref={(el) => (sectionRefs.current[1] = el)}>
           <h2 style={{textAlign:"center",marginBottom:"50px",fontSize:"50px",}}>My Projects</h2>
           <div style={styles.projectContainer}>
+
+          <a href="https://lahirutours.co.uk/">
             <div style={styles.projectCard}>
             <h3 style={{fontSize:"30px",color:""}}>Lahiru Tours</h3>
               <img
@@ -343,6 +346,9 @@ function Portfolio() {
               
               <p>Lahiru Tours is your gateway to unforgettable adventures. Specializing in tailor-made travel experiences, we offer exclusive tour packages designed to showcase the beauty, culture, and heritage of your dream destinations. From scenic landscapes to cultural landmarks, every journey is crafted with care to ensure a seamless and enriching travel experience.Discover, explore, and create memories that last a lifetime with Lahiru Tours.</p>
             </div>
+            </a>
+
+            <a href="https://www.figma.com/proto/0ZqKjHGHQUoh4rqVAu3q1H/HCI?node-id=109-67&node-type=canvas&t=wgjCtr4Sy2AXhhh2-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=109%3A67">
             <div style={styles.projectCard}>
             <h3 style={{fontSize:"30px",color:""}}>Yale Art School UI/UX</h3>
               <img
@@ -353,6 +359,8 @@ function Portfolio() {
               
               <p>Creating a Figma UI design for the Yale School of Art involves incorporating both aesthetic and functional elements that align with its identity. The Yale School of Art is known for its creativity, innovation, and prestige, so the design must capture these values. Below is a breakdown of the design considerations and features for the U</p>
             </div>
+
+            </a>
           </div>
         </section>
 
@@ -380,7 +388,7 @@ function Portfolio() {
               type="tel" 
               placeholder="Phone Number" 
               value={phone} 
-              onChange={(e) => setPhone(e.target.value)} 
+              onChange={(e) => setPhone(value.replace(/[^0-9]/g, ''))} 
               style={styles.input} required />
               
               <textarea
