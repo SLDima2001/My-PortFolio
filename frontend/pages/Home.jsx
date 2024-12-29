@@ -379,7 +379,7 @@ function Portfolio() {
               type="tel" 
               placeholder="Phone Number" 
               value={phone} 
-              onChange={(e) => setPhone(value.replace(/[^0-9]/g, ''))} 
+              onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
               style={styles.input} required />
               
               <textarea
