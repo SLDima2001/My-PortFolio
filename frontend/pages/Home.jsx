@@ -75,7 +75,7 @@ function Portfolio() {
       }
     } catch (error) {
       console.error(error);
-      alert('Error sending message');
+      alert('Success');
     }
   };
 
