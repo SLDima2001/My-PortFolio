@@ -76,7 +76,9 @@ function Portfolio() {
     } catch (error) {
       console.error(error);
       alert('Success');
+      
     }
+    window.location.reload();
   };
 
   useEffect(() => {
