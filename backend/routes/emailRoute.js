@@ -11,7 +11,7 @@ router.post('/form1', async (req, res) => {
 
   try {
     // Create a transporter
-    let transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
         user: 'lahirutoursorg@gmail.com', // Your email
@@ -25,26 +25,31 @@ router.post('/form1', async (req, res) => {
       to: 'dimalshapraveen2001@gmail.com', // Recipient email
       subject: 'Contact Form Submission',
       text: `
-      Name: ${name}\n
-      Email: ${email}\n
-      Phone: ${phone}\n
+      Name: ${name}
+      Email: ${email}
+      Phone: ${phone}
       Message: ${message}
       `
     };
 
-    // Send email
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).send('Failed to send email');
-      } else {
-        return res.status(200).send('Email sent successfully');
-      }
+    // Send email using Promise-based approach
+    await transporter.sendMail(mailOptions);
+    
+    // Return JSON response
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Email sent successfully' 
     });
+    
   } catch (error) {
-    return res.status(500).send('An error occurred while sending the email');
+    console.error('Email sending error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'An error occurred while sending the email',
+      error: error.message 
+    });
   }
 });
-
 
 
 
