@@ -74,7 +74,7 @@ function Portfolio() {
         alert('Failed to send email.');
       }
     } catch (error) {
-     
+      console.error(error);
       alert('Error sending message');
     }
   };
