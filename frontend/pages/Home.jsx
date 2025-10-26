@@ -152,19 +152,10 @@ function Portfolio() {
       featured: false
     },
     {
-      title: "Task Management System",
-      description: "Collaborative task management application with real-time updates, team collaboration features, kanban boards, time tracking, and project timeline visualization for enhanced productivity.",
+      title: "Mood Tracker Mobile App",
+      description: "Users can add their Mood and Save it in Mobile Phone",
       image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop",
-      tech: ["React", "Firebase", "Tailwind CSS", "WebSockets"],
-      liveUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Social Media App",
-      description: "Modern social networking platform with real-time messaging, post sharing, image uploads to cloud storage, user profiles, follow system, and notification system built with scalable architecture.",
-      image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop",
-      tech: ["React", "Node.js", "Socket.io", "AWS S3"],
+      tech: ["React-Native", "MongoDB"],
       liveUrl: "#",
       githubUrl: "#",
       featured: false
