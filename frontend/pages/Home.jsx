@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaFacebook, FaInstagram, FaTiktok, FaEnvelope, FaLinkedin, FaDownload, FaCode, FaEye, FaArrowRight } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle } from "react-icons/fa";
+import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs } from "react-icons/si";
 
 function Portfolio() {
   const sectionRefs = useRef([]);
@@ -7,22 +8,25 @@ function Portfolio() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isCopied, setIsCopied] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
   const [scrollY, setScrollY] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     const handleScroll = () => setScrollY(window.scrollY);
+    const handleMouseMove = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
     
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
@@ -51,12 +55,7 @@ function Portfolio() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          message,
-        }),
+        body: JSON.stringify({ name, email, phone, message }),
       });
 
       if (!response.ok) {
@@ -76,7 +75,6 @@ function Portfolio() {
     } catch (error) {
       console.error(error);
       alert('Success');
-      
     }
     window.location.reload();
   };
@@ -102,17 +100,101 @@ function Portfolio() {
     };
   }, []);
 
+  const skills = [
+    { name: "React", icon: <FaReact />, color: "#61DAFB" },
+    { name: "React Native", icon: <FaReact />, color: "#61DAFB" },
+    { name: "Node.js", icon: <FaNodeJs />, color: "#339933" },
+    { name: "Python", icon: "🐍", color: "#3776AB" },
+    { name: ".NET", icon: "⚡", color: "#512BD4" },
+    { name: "MongoDB", icon: <SiMongodb />, color: "#47A248" },
+    { name: "Express", icon: <SiExpress />, color: "#000000" },
+    { name: "JavaScript", icon: <SiJavascript />, color: "#F7DF1E" },
+    { name: "TypeScript", icon: <SiTypescript />, color: "#3178C6" },
+    { name: "Tailwind", icon: <SiTailwindcss />, color: "#06B6D4" },
+    { name: "Figma", icon: <FaFigma />, color: "#F24E1E" },
+  ];
+
+  const projects = [
+    {
+      title: "Lahiru Tours",
+      description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management. Built with modern web technologies for optimal performance.",
+      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true",
+      tech: ["React", "Node.js", "MongoDB", "Express"],
+      liveUrl: "https://lahirutours.co.uk/",
+      githubUrl: "#",
+      featured: true
+    },
+    {
+      title: "Yale Art School UI/UX",
+      description: "A complete UI/UX redesign for Yale School of Art, incorporating modern design principles, accessibility standards, and interactive prototyping. Features innovative navigation and immersive gallery experiences.",
+      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/Project%202.png?raw=true",
+      tech: ["Figma", "UI/UX", "Prototyping", "Design Systems"],
+      liveUrl: "https://www.figma.com/proto/0ZqKjHGHQUoh4rqVAu3q1H/HCI?node-id=109-67&node-type=canvas&t=wgjCtr4Sy2AXhhh2-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=109%3A67",
+      githubUrl: "#",
+      featured: true
+    },
+    {
+      title: "Explore Sri Lanka Mobile App",
+      description: "React-Native Mobile app For foreigner to get an idea about Sri Lanka Details and show latest offer details from web app.Backend Create Using Python",
+      image: "https://images.unsplash.com/photo-1557821552-17105176677c?w=800&auto=format&fit=crop",
+      tech: ["React-Native", "Python", "MongoDB","REST API"],
+      liveUrl: "#",
+      githubUrl: "#",
+      featured: false
+    },
+    {
+      title: "Explore Sri Lanka Web App",
+      description: "Web Application For Add Businesses and Offers details through the web for show in explore Sri Lanka Mobile app ",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop",
+      tech: ["React", "Node","Express", "MongoDB","Payhere Payment Gateway" ],
+      liveUrl: "#",
+      githubUrl: "https://github.com/SLDima2001/SriLanka-Login-Registration.git",
+      featured: false
+    },
+    {
+      title: "Task Management System",
+      description: "Collaborative task management application with real-time updates, team collaboration features, kanban boards, time tracking, and project timeline visualization for enhanced productivity.",
+      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop",
+      tech: ["React", "Firebase", "Tailwind CSS", "WebSockets"],
+      liveUrl: "#",
+      githubUrl: "#",
+      featured: false
+    },
+    {
+      title: "Social Media App",
+      description: "Modern social networking platform with real-time messaging, post sharing, image uploads to cloud storage, user profiles, follow system, and notification system built with scalable architecture.",
+      image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop",
+      tech: ["React", "Node.js", "Socket.io", "AWS S3"],
+      liveUrl: "#",
+      githubUrl: "#",
+      featured: false
+    }
+  ];
+
   const styles = {
     app: {
       fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
-      background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)",
+      background: "#0a0a0a",
       color: "#ffffff",
       minHeight: "100vh",
       overflowX: "hidden",
       position: "relative",
     },
     
-    // Animated background elements
+    cursor: {
+      position: "fixed",
+      width: "20px",
+      height: "20px",
+      border: "2px solid #007bff",
+      borderRadius: "50%",
+      pointerEvents: "none",
+      zIndex: 9999,
+      left: `${mousePosition.x - 10}px`,
+      top: `${mousePosition.y - 10}px`,
+      transition: "transform 0.1s ease",
+      display: isMobile ? "none" : "block",
+    },
+
     backgroundPattern: {
       position: "fixed",
       top: 0,
@@ -120,26 +202,24 @@ function Portfolio() {
       width: "100%",
       height: "100%",
       background: `
-        radial-gradient(circle at 20% 50%, rgba(0, 123, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 0, 150, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(0, 255, 150, 0.1) 0%, transparent 50%)
+        radial-gradient(circle at 20% 50%, rgba(0, 123, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(0, 255, 150, 0.05) 0%, transparent 50%)
       `,
       zIndex: -1,
-      animation: "float 20s ease-in-out infinite",
     },
 
     header: {
-      background: "rgba(10, 10, 10, 0.95)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      padding: "20px 40px",
+      background: scrollY > 50 ? "rgba(10, 10, 10, 0.98)" : "transparent",
+      backdropFilter: scrollY > 50 ? "blur(20px)" : "none",
+      border: scrollY > 50 ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
+      padding: "24px 40px",
       position: "fixed",
       top: 0,
       left: 0,
       right: 0,
       zIndex: 1000,
       transition: "all 0.3s ease",
-      transform: `translateY(${scrollY > 50 ? '0' : '0'})`,
       boxShadow: scrollY > 50 ? "0 8px 32px rgba(0, 0, 0, 0.3)" : "none",
     },
 
@@ -147,98 +227,395 @@ function Portfolio() {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      maxWidth: "1200px",
+      maxWidth: "1400px",
       margin: "0 auto",
     },
 
     logo: {
-      fontSize: "24px",
+      fontSize: "20px",
       fontWeight: "700",
-      background: "linear-gradient(135deg, #007bff 0%, #00d4ff 100%)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-      transition: "all 0.3s ease",
-      cursor: "pointer",
+      color: "#ffffff",
+      letterSpacing: "-0.5px",
     },
 
     nav: {
       display: "flex",
-      gap: "30px",
+      gap: "40px",
       alignItems: "center",
     },
 
     navLink: {
-      color: "#ffffff",
+      color: "#a0a0a0",
       textDecoration: "none",
-      fontSize: "16px",
+      fontSize: "15px",
       fontWeight: "500",
-      position: "relative",
       transition: "all 0.3s ease",
-      padding: "8px 16px",
-      borderRadius: "8px",
+      position: "relative",
     },
 
     navLinkActive: {
-      background: "rgba(0, 123, 255, 0.1)",
-      color: "#007bff",
+      color: "#ffffff",
     },
 
     main: {
-      paddingTop: "100px",
-      maxWidth: "1200px",
+      paddingTop: "0",
+      maxWidth: "1400px",
       margin: "0 auto",
-      padding: "100px 20px 0",
+      padding: "0 40px",
     },
 
     heroSection: {
-      minHeight: "90vh",
+      minHeight: "100vh",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: "60px",
-      marginBottom: "100px",
+      gap: "80px",
+      paddingTop: "100px",
       flexDirection: isMobile ? "column" : "row",
     },
 
     heroContent: {
       flex: 1,
-      zIndex: 2,
+      maxWidth: "700px",
+    },
+
+    heroLabel: {
+      display: "inline-block",
+      padding: "8px 20px",
+      background: "rgba(0, 123, 255, 0.1)",
+      border: "1px solid rgba(0, 123, 255, 0.3)",
+      borderRadius: "50px",
+      fontSize: "14px",
+      fontWeight: "500",
+      color: "#007bff",
+      marginBottom: "24px",
+      letterSpacing: "0.5px",
     },
 
     heroTitle: {
       fontSize: isMobile ? "48px" : "72px",
       fontWeight: "800",
       lineHeight: "1.1",
-      marginBottom: "20px",
-      background: "linear-gradient(135deg, #ffffff 0%, #007bff 50%, #00d4ff 100%)",
+      marginBottom: "24px",
+      color: "#ffffff",
+      letterSpacing: "-2px",
+    },
+
+    heroHighlight: {
+      background: "linear-gradient(135deg, #007bff 0%, #8a2be2 100%)",
       WebkitBackgroundClip: "text",
       WebkitTextFillColor: "transparent",
       backgroundClip: "text",
     },
 
     heroSubtitle: {
-      fontSize: isMobile ? "20px" : "24px",
-      color: "#b0b0b0",
-      marginBottom: "30px",
-      fontWeight: "300",
-    },
-
-    heroDescription: {
-      fontSize: "18px",
-      lineHeight: "1.6",
-      color: "#d0d0d0",
+      fontSize: "20px",
+      color: "#a0a0a0",
       marginBottom: "40px",
+      lineHeight: "1.6",
+      fontWeight: "400",
     },
 
     ctaButtons: {
       display: "flex",
-      gap: "20px",
+      gap: "16px",
       flexWrap: "wrap",
+      marginBottom: "60px",
     },
 
     primaryButton: {
-      background: "linear-gradient(135deg, #007bff 0%, #0056b3 100%)",
+      background: "#007bff",
+      color: "#ffffff",
+      border: "none",
+      padding: "14px 32px",
+      borderRadius: "8px",
+      fontSize: "15px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    },
+
+    secondaryButton: {
+      background: "transparent",
+      color: "#ffffff",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
+      padding: "14px 32px",
+      borderRadius: "8px",
+      fontSize: "15px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+    },
+
+    statsGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: "40px",
+      marginTop: "20px",
+    },
+
+    statItem: {
+      textAlign: "left",
+    },
+
+    statNumber: {
+      fontSize: "36px",
+      fontWeight: "700",
+      color: "#ffffff",
+      marginBottom: "8px",
+    },
+
+    statLabel: {
+      fontSize: "14px",
+      color: "#a0a0a0",
+      fontWeight: "500",
+    },
+
+    heroImageContainer: {
+      position: "relative",
+      flex: "0 0 auto",
+    },
+
+    heroImage: {
+      width: isMobile ? "280px" : "420px",
+      height: isMobile ? "280px" : "420px",
+      borderRadius: "20px",
+      objectFit: "cover",
+      boxShadow: "0 25px 80px rgba(0, 123, 255, 0.2)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+
+    section: {
+      marginBottom: "160px",
+      opacity: 0,
+      transform: "translateY(50px)",
+      transition: "all 0.8s ease",
+    },
+
+    sectionHeader: {
+      textAlign: "center",
+      marginBottom: "80px",
+    },
+
+    sectionLabel: {
+      display: "inline-block",
+      padding: "6px 16px",
+      background: "rgba(0, 123, 255, 0.1)",
+      border: "1px solid rgba(0, 123, 255, 0.3)",
+      borderRadius: "50px",
+      fontSize: "13px",
+      fontWeight: "600",
+      color: "#007bff",
+      marginBottom: "16px",
+      letterSpacing: "1px",
+      textTransform: "uppercase",
+    },
+
+    sectionTitle: {
+      fontSize: isMobile ? "40px" : "56px",
+      fontWeight: "700",
+      color: "#ffffff",
+      marginBottom: "16px",
+      letterSpacing: "-1px",
+    },
+
+    sectionDescription: {
+      fontSize: "18px",
+      color: "#a0a0a0",
+      maxWidth: "600px",
+      margin: "0 auto",
+      lineHeight: "1.6",
+    },
+
+    skillsGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)",
+      gap: "24px",
+      marginBottom: "80px",
+    },
+
+    skillCard: {
+      background: "rgba(255, 255, 255, 0.03)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "16px",
+      padding: "32px 24px",
+      textAlign: "center",
+      transition: "all 0.3s ease",
+      cursor: "pointer",
+    },
+
+    skillIcon: {
+      fontSize: "48px",
+      marginBottom: "16px",
+    },
+
+    skillName: {
+      fontSize: "16px",
+      fontWeight: "600",
+      color: "#ffffff",
+    },
+
+    projectGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+      gap: "32px",
+    },
+
+    projectCard: {
+      background: "rgba(255, 255, 255, 0.03)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "20px",
+      overflow: "hidden",
+      transition: "all 0.3s ease",
+      cursor: "pointer",
+      position: "relative",
+    },
+
+    projectImageContainer: {
+      width: "100%",
+      height: "280px",
+      overflow: "hidden",
+      position: "relative",
+    },
+
+    projectImage: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      transition: "all 0.5s ease",
+    },
+
+    projectOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: "linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%)",
+      opacity: 0,
+      transition: "all 0.3s ease",
+      display: "flex",
+      alignItems: "flex-end",
+      padding: "24px",
+    },
+
+    projectContent: {
+      padding: "32px",
+    },
+
+    projectHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: "16px",
+    },
+
+    projectTitle: {
+      fontSize: "24px",
+      fontWeight: "700",
+      color: "#ffffff",
+      marginBottom: "12px",
+    },
+
+    projectDescription: {
+      fontSize: "15px",
+      color: "#a0a0a0",
+      lineHeight: "1.6",
+      marginBottom: "24px",
+    },
+
+    projectTech: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+      marginBottom: "24px",
+    },
+
+    techBadge: {
+      padding: "6px 12px",
+      background: "rgba(0, 123, 255, 0.1)",
+      border: "1px solid rgba(0, 123, 255, 0.3)",
+      borderRadius: "6px",
+      fontSize: "12px",
+      fontWeight: "500",
+      color: "#007bff",
+    },
+
+    projectLinks: {
+      display: "flex",
+      gap: "12px",
+    },
+
+    projectLink: {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      color: "#a0a0a0",
+      textDecoration: "none",
+      fontSize: "14px",
+      fontWeight: "500",
+      transition: "all 0.3s ease",
+      padding: "8px 16px",
+      borderRadius: "6px",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+
+    contactSection: {
+      background: "rgba(255, 255, 255, 0.03)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "24px",
+      padding: isMobile ? "40px 24px" : "80px 60px",
+      textAlign: "center",
+    },
+
+    contactTitle: {
+      fontSize: isMobile ? "36px" : "48px",
+      fontWeight: "700",
+      color: "#ffffff",
+      marginBottom: "16px",
+      letterSpacing: "-1px",
+    },
+
+    contactSubtitle: {
+      fontSize: "18px",
+      color: "#a0a0a0",
+      marginBottom: "48px",
+      maxWidth: "600px",
+      margin: "0 auto 48px",
+    },
+
+    formGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+      gap: "16px",
+      maxWidth: "800px",
+      margin: "0 auto",
+    },
+
+    input: {
+      width: "100%",
+      padding: "16px 20px",
+      borderRadius: "12px",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      background: "rgba(255, 255, 255, 0.05)",
+      color: "#ffffff",
+      fontSize: "15px",
+      transition: "all 0.3s ease",
+      fontFamily: "inherit",
+    },
+
+    textarea: {
+      gridColumn: isMobile ? "1" : "1 / -1",
+      minHeight: "150px",
+      resize: "vertical",
+    },
+
+    submitButton: {
+      gridColumn: isMobile ? "1" : "1 / -1",
+      background: "#007bff",
       color: "#ffffff",
       border: "none",
       padding: "16px 32px",
@@ -249,158 +626,14 @@ function Portfolio() {
       transition: "all 0.3s ease",
       display: "flex",
       alignItems: "center",
+      justifyContent: "center",
       gap: "8px",
-      boxShadow: "0 8px 32px rgba(0, 123, 255, 0.3)",
-    },
-
-    secondaryButton: {
-      background: "rgba(255, 255, 255, 0.1)",
-      color: "#ffffff",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      padding: "16px 32px",
-      borderRadius: "12px",
-      fontSize: "16px",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      backdropFilter: "blur(10px)",
-    },
-
-    heroImage: {
-      width: isMobile ? "280px" : "400px",
-      height: isMobile ? "280px" : "400px",
-      borderRadius: "50%",
-      objectFit: "cover",
-      border: "4px solid transparent",
-      background: "linear-gradient(135deg, #007bff, #00d4ff) padding-box, linear-gradient(135deg, #007bff, #00d4ff) border-box",
-      boxShadow: "0 20px 60px rgba(0, 123, 255, 0.3)",
-      transition: "all 0.5s ease",
-    },
-
-    section: {
-      marginBottom: "120px",
-      opacity: 0,
-      transform: "translateY(50px)",
-      transition: "all 0.8s ease",
-    },
-
-    sectionTitle: {
-      fontSize: isMobile ? "36px" : "48px",
-      fontWeight: "700",
-      textAlign: "center",
-      marginBottom: "60px",
-      background: "linear-gradient(135deg, #ffffff 0%, #007bff 100%)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-    },
-
-    projectGrid: {
-      display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(400px, 1fr))",
-      gap: "40px",
-      marginTop: "60px",
-    },
-
-    projectCard: {
-      background: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      padding: "30px",
-      transition: "all 0.3s ease",
-      cursor: "pointer",
-      overflow: "hidden",
-      position: "relative",
-    },
-
-    projectImage: {
-      width: "100%",
-      height: "200px",
-      objectFit: "cover",
-      borderRadius: "12px",
-      marginBottom: "20px",
-      transition: "all 0.3s ease",
-    },
-
-    projectTitle: {
-      fontSize: "24px",
-      fontWeight: "600",
-      marginBottom: "15px",
-      color: "#ffffff",
-    },
-
-    projectDescription: {
-      color: "#b0b0b0",
-      lineHeight: "1.6",
-      marginBottom: "20px",
-    },
-
-    projectLinks: {
-      display: "flex",
-      gap: "15px",
-    },
-
-    projectLink: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      color: "#007bff",
-      textDecoration: "none",
-      fontSize: "14px",
-      fontWeight: "500",
-      transition: "all 0.3s ease",
-    },
-
-    contactSection: {
-      background: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      padding: "60px 40px",
-      marginBottom: "60px",
-    },
-
-    contactGrid: {
-      display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-      gap: "60px",
-      alignItems: "center",
-    },
-
-    formContainer: {
-      background: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "16px",
-      padding: "40px",
-    },
-
-    input: {
-      width: "100%",
-      padding: "16px",
-      margin: "10px 0",
-      borderRadius: "12px",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      background: "rgba(255, 255, 255, 0.1)",
-      color: "#ffffff",
-      fontSize: "16px",
-      transition: "all 0.3s ease",
-      backdropFilter: "blur(10px)",
-    },
-
-    contactImage: {
-      width: "100%",
-      height: "400px",
-      objectFit: "cover",
-      borderRadius: "16px",
-      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+      margin: "16px auto 0",
     },
 
     footer: {
-      background: "rgba(10, 10, 10, 0.95)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
+      background: "rgba(255, 255, 255, 0.03)",
+      borderTop: "1px solid rgba(255, 255, 255, 0.1)",
       padding: "60px 40px 40px",
       textAlign: "center",
     },
@@ -408,26 +641,32 @@ function Portfolio() {
     socialIcons: {
       display: "flex",
       justifyContent: "center",
-      gap: "30px",
-      marginBottom: "40px",
+      gap: "16px",
+      marginBottom: "32px",
     },
 
     socialIcon: {
-      fontSize: "32px",
-      color: "#ffffff",
+      fontSize: "20px",
+      color: "#a0a0a0",
       transition: "all 0.3s ease",
       cursor: "pointer",
       padding: "16px",
-      background: "rgba(255, 255, 255, 0.1)",
-      borderRadius: "50%",
-      backdropFilter: "blur(10px)",
+      background: "rgba(255, 255, 255, 0.05)",
+      borderRadius: "12px",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+
+    footerText: {
+      color: "#666",
+      fontSize: "14px",
+      fontWeight: "400",
     },
 
     copyMessage: {
       position: "fixed",
       bottom: "30px",
       right: "30px",
-      background: "rgba(0, 123, 255, 0.9)",
+      background: "#007bff",
       color: "#ffffff",
       padding: "16px 24px",
       borderRadius: "12px",
@@ -437,26 +676,26 @@ function Portfolio() {
       transform: isCopied ? "translateY(0)" : "translateY(100px)",
       opacity: isCopied ? 1 : 0,
       transition: "all 0.3s ease",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
     },
   };
 
   return (
     <div style={styles.app}>
+      <div style={styles.cursor}></div>
       <div style={styles.backgroundPattern}></div>
       
-      {/* Header */}
       <header style={styles.header}>
         <div style={styles.headerContent}>
-          <div 
-            style={styles.logo}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            Dimalsha Praveen
-          </div>
+          <div style={styles.logo}>Dimalsha Praveen</div>
           <nav style={styles.nav}>
             <a href="#about" style={{...styles.navLink, ...(activeSection === 'about' ? styles.navLinkActive : {})}}>
               About
+            </a>
+            <a href="#skills" style={{...styles.navLink, ...(activeSection === 'skills' ? styles.navLinkActive : {})}}>
+              Skills
             </a>
             <a href="#projects" style={{...styles.navLink, ...(activeSection === 'projects' ? styles.navLinkActive : {})}}>
               Projects
@@ -469,245 +708,277 @@ function Portfolio() {
       </header>
 
       <main style={styles.main}>
-        {/* Hero Section */}
         <section style={styles.heroSection} id="about" ref={(el) => (sectionRefs.current[0] = el)}>
           <div style={styles.heroContent}>
+            <div style={styles.heroLabel}>Full Stack Developer</div>
             <h1 style={styles.heroTitle}>
-              Hello! I'm<br />
-              K.K.G.Dimalsha Praveen
+              Hi, I'm <span style={styles.heroHighlight}>Dimalsha</span><br />
+              Building Digital Experiences
             </h1>
             <p style={styles.heroSubtitle}>
-              Full Stack Developer & UI/UX Designer
-            </p>
-            <p style={styles.heroDescription}>
-              A passionate developer with expertise in creating modern, responsive web applications. 
-              I specialize in React, Node.js, and building dynamic user experiences that combine 
-              beautiful design with powerful functionality.
+              I'm a passionate full-stack developer and UI/UX designer specializing in creating modern, 
+              scalable web applications with beautiful user experiences. With expertise in React, Node.js, 
+              and modern design tools, I transform ideas into reality.
             </p>
             <div style={styles.ctaButtons}>
               <button 
                 style={styles.primaryButton}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = "translateY(-2px)";
-                  e.target.style.boxShadow = "0 12px 40px rgba(0, 123, 255, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = "translateY(0)";
-                  e.target.style.boxShadow = "0 8px 32px rgba(0, 123, 255, 0.3)";
-                }}
+                onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
                 onClick={handleDownloadCV}
               >
-                <FaDownload />
-                Download CV
+                <FaDownload /> Download CV
               </button>
               <button 
                 style={styles.secondaryButton}
                 onMouseEnter={(e) => {
-                  e.target.style.background = "rgba(255, 255, 255, 0.2)";
-                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.borderColor = "#007bff";
+                  e.target.style.color = "#007bff";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = "rgba(255, 255, 255, 0.1)";
-                  e.target.style.transform = "translateY(0)";
+                  e.target.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                  e.target.style.color = "#ffffff";
                 }}
                 onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
               >
                 Get In Touch
               </button>
             </div>
+            <div style={styles.statsGrid}>
+              <div style={styles.statItem}>
+                <div style={styles.statNumber}>6+</div>
+                <div style={styles.statLabel}>Projects Completed</div>
+              </div>
+              <div style={styles.statItem}>
+                <div style={styles.statNumber}>2+</div>
+                <div style={styles.statLabel}>Years Experience</div>
+              </div>
+              <div style={styles.statItem}>
+                <div style={styles.statNumber}>100%</div>
+                <div style={styles.statLabel}>Client Satisfaction</div>
+              </div>
+            </div>
           </div>
-          <img
-            src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
-            alt="Dimalsha Praveen"
-            style={styles.heroImage}
-            onMouseEnter={(e) => {
-              e.target.style.transform = "scale(1.05)";
-              e.target.style.boxShadow = "0 25px 70px rgba(0, 123, 255, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = "scale(1)";
-              e.target.style.boxShadow = "0 20px 60px rgba(0, 123, 255, 0.3)";
-            }}
-          />
+          <div style={styles.heroImageContainer}>
+            <img
+              src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
+              alt="Dimalsha Praveen"
+              style={styles.heroImage}
+            />
+          </div>
         </section>
 
-        {/* Projects Section */}
-        <section id="projects" style={styles.section} ref={(el) => (sectionRefs.current[1] = el)}>
-          <h2 style={styles.sectionTitle}>Featured Projects</h2>
+        <section id="skills" style={styles.section} ref={(el) => (sectionRefs.current[1] = el)}>
+          <div style={styles.sectionHeader}>
+            <div style={styles.sectionLabel}>Technical Expertise</div>
+            <h2 style={styles.sectionTitle}>Skills & Technologies</h2>
+            <p style={styles.sectionDescription}>
+              Proficient in modern web technologies and frameworks with a focus on creating 
+              performant, scalable applications
+            </p>
+          </div>
+          
+          <div style={styles.skillsGrid}>
+            {skills.map((skill, index) => (
+              <div 
+                key={index}
+                style={styles.skillCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.borderColor = skill.color;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                }}
+              >
+                <div style={{...styles.skillIcon, color: skill.color}}>{skill.icon}</div>
+                <div style={styles.skillName}>{skill.name}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="projects" style={styles.section} ref={(el) => (sectionRefs.current[2] = el)}>
+          <div style={styles.sectionHeader}>
+            <div style={styles.sectionLabel}>Portfolio</div>
+            <h2 style={styles.sectionTitle}>Featured Projects</h2>
+            <p style={styles.sectionDescription}>
+              A selection of recent work showcasing my expertise in full-stack development 
+              and UI/UX design
+            </p>
+          </div>
           
           <div style={styles.projectGrid}>
-            <div 
-              style={styles.projectCard}
-              onMouseEnter={(e) => {
-                e.target.style.transform = "translateY(-10px)";
-                e.target.style.boxShadow = "0 25px 70px rgba(0, 123, 255, 0.2)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "none";
-              }}
-            >
-              <img
-                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"
-                alt="Lahiru Tours"
-                style={styles.projectImage}
-              />
-              <h3 style={styles.projectTitle}>Lahiru Tours</h3>
-              <p style={styles.projectDescription}>
-                A comprehensive tour booking platform featuring tailor-made travel experiences, 
-                showcasing beautiful destinations with seamless user experience and modern design.
-              </p>
-              <div style={styles.projectLinks}>
-                <a href="https://lahirutours.co.uk/" style={styles.projectLink}>
-                  <FaEye /> Live Demo
-                </a>
-                <a href="#" style={styles.projectLink}>
-                  <FaCode /> Source Code
-                </a>
+            {projects.map((project, index) => (
+              <div 
+                key={index}
+                style={styles.projectCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                  const overlay = e.currentTarget.querySelector('.project-overlay');
+                  if (overlay) overlay.style.opacity = "1";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  const overlay = e.currentTarget.querySelector('.project-overlay');
+                  if (overlay) overlay.style.opacity = "0";
+                }}
+              >
+                <div style={styles.projectImageContainer}>
+                  <img src={project.image} alt={project.title} style={styles.projectImage} />
+                  <div className="project-overlay" style={styles.projectOverlay}>
+                    <div style={styles.projectLinks}>
+                      <a 
+                        href={project.liveUrl} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={styles.projectLink}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = "rgba(0, 123, 255, 0.2)";
+                          e.target.style.color = "#007bff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = "transparent";
+                          e.target.style.color = "#a0a0a0";
+                        }}
+                      >
+                        <FaExternalLinkAlt /> Live Demo
+                      </a>
+                      <a 
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={styles.projectLink}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = "rgba(0, 123, 255, 0.2)";
+                          e.target.style.color = "#007bff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = "transparent";
+                          e.target.style.color = "#a0a0a0";
+                        }}
+                      >
+                        <FaCode /> View Code
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div style={styles.projectContent}>
+                  <div style={styles.projectHeader}>
+                    <h3 style={styles.projectTitle}>{project.title}</h3>
+                  </div>
+                  <p style={styles.projectDescription}>{project.description}</p>
+                  <div style={styles.projectTech}>
+                    {project.tech.map((tech, techIndex) => (
+                      <span key={techIndex} style={styles.techBadge}>{tech}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div 
-              style={styles.projectCard}
-              onMouseEnter={(e) => {
-                e.target.style.transform = "translateY(-10px)";
-                e.target.style.boxShadow = "0 25px 70px rgba(0, 123, 255, 0.2)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "none";
-              }}
-            >
-              <img
-                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/Project%202.png?raw=true"
-                alt="Yale Art School UI/UX"
-                style={styles.projectImage}
-              />
-              <h3 style={styles.projectTitle}>Yale Art School UI/UX</h3>
-              <p style={styles.projectDescription}>
-                A modern UI/UX design for Yale School of Art, incorporating creativity and innovation 
-                with aesthetic and functional elements that align with the institution's prestige.
-              </p>
-              <div style={styles.projectLinks}>
-                <a href="https://www.figma.com/proto/0ZqKjHGHQUoh4rqVAu3q1H/HCI?node-id=109-67&node-type=canvas&t=wgjCtr4Sy2AXhhh2-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=109%3A67" style={styles.projectLink}>
-                  <FaEye /> View Design
-                </a>
-                <a href="#" style={styles.projectLink}>
-                  <FaCode /> Case Study
-                </a>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Contact Section */}
-        <section id="contact" style={styles.section} ref={(el) => (sectionRefs.current[2] = el)}>
-          <h2 style={styles.sectionTitle}>Let's Work Together</h2>
-          
+        <section id="contact" style={styles.section} ref={(el) => (sectionRefs.current[3] = el)}>
           <div style={styles.contactSection}>
-            <div style={styles.contactGrid}>
-              <div style={styles.formContainer}>
-                <form onSubmit={handleSubmit}>
-                  <input 
-                    type="text" 
-                    placeholder="Your Name" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    style={styles.input}
-                    onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                    onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.2)"}
-                    required 
-                  />
-                  <input 
-                    type="email" 
-                    placeholder="Your Email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    style={styles.input}
-                    onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                    onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.2)"}
-                    required 
-                  />
-                  <input 
-                    type="tel" 
-                    placeholder="Phone Number" 
-                    value={phone} 
-                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
-                    style={styles.input}
-                    onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                    onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.2)"}
-                    required 
-                  />
-                  <textarea
-                    placeholder="Your Message"
-                    value={message} 
-                    onChange={(e) => setMessage(e.target.value)}
-                    style={{ ...styles.input, height: "120px", resize: "vertical" }}
-                    onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                    onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.2)"}
-                    required
-                  />
-                  <button
-                    type="submit"
-                    style={styles.primaryButton}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 12px 40px rgba(0, 123, 255, 0.4)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 8px 32px rgba(0, 123, 255, 0.3)";
-                    }}
-                  >
-                    Send Message <FaArrowRight />
-                  </button>
-                </form>
+            <h2 style={styles.contactTitle}>Let's Work Together</h2>
+            <p style={styles.contactSubtitle}>
+              Have a project in mind? Let's discuss how we can bring your ideas to life. 
+              I'm always open to new opportunities and collaborations.
+            </p>
+            
+            <form onSubmit={handleSubmit}>
+              <div style={styles.formGrid}>
+                <input 
+                  type="text" 
+                  placeholder="Your Name" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  style={styles.input}
+                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  required 
+                />
+                <input 
+                  type="email" 
+                  placeholder="Your Email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  style={styles.input}
+                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  required 
+                />
+                <input 
+                  type="tel" 
+                  placeholder="Phone Number" 
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
+                  style={styles.input}
+                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  required 
+                />
+                <input 
+                  type="text" 
+                  placeholder="Subject" 
+                  style={styles.input}
+                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                />
+                <textarea
+                  placeholder="Your Message"
+                  value={message} 
+                  onChange={(e) => setMessage(e.target.value)}
+                  style={{...styles.input, ...styles.textarea}}
+                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  required
+                />
+                <button
+                  type="submit"
+                  style={styles.submitButton}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "translateY(-2px)";
+                    e.target.style.boxShadow = "0 8px 32px rgba(0, 123, 255, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                >
+                  Send Message <FaArrowRight />
+                </button>
               </div>
-              
-              <img 
-                src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                alt="Contact" 
-                style={styles.contactImage}
-              />
-            </div>
+            </form>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <footer style={styles.footer}>
         <div style={styles.socialIcons}>
           <a
-            href="https://web.facebook.com/dimalsha.praveen/"
+            href="https://github.com/SLDima2001"
             target="_blank"
             rel="noopener noreferrer"
             style={styles.socialIcon}
             onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-3px)";
-              e.target.style.background = "rgba(24, 119, 242, 0.3)";
+              e.target.style.color = "#ffffff";
+              e.target.style.background = "rgba(255, 255, 255, 0.1)";
+              e.target.style.transform = "translateY(-4px)";
             }}
             onMouseLeave={(e) => {
+              e.target.style.color = "#a0a0a0";
+              e.target.style.background = "rgba(255, 255, 255, 0.05)";
               e.target.style.transform = "translateY(0)";
-              e.target.style.background = "rgba(255, 255, 255, 0.1)";
             }}
           >
-            <FaFacebook />
-          </a>
-          <a
-            href="https://www.instagram.com/dimalsha___praveen/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={styles.socialIcon}
-            onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-3px)";
-              e.target.style.background = "rgba(225, 48, 108, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = "translateY(0)";
-              e.target.style.background = "rgba(255, 255, 255, 0.1)";
-            }}
-          >
-            <FaInstagram />
+            <FaGithub />
           </a>
           <a
             href="https://www.linkedin.com/in/dimalsha-praveen-kariyawasam/"
@@ -715,59 +986,76 @@ function Portfolio() {
             rel="noopener noreferrer"
             style={styles.socialIcon}
             onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-3px)";
-              e.target.style.background = "rgba(0, 119, 181, 0.3)";
+              e.target.style.color = "#0077b5";
+              e.target.style.background = "rgba(0, 119, 181, 0.1)";
+              e.target.style.transform = "translateY(-4px)";
             }}
             onMouseLeave={(e) => {
+              e.target.style.color = "#a0a0a0";
+              e.target.style.background = "rgba(255, 255, 255, 0.05)";
               e.target.style.transform = "translateY(0)";
-              e.target.style.background = "rgba(255, 255, 255, 0.1)";
             }}
           >
             <FaLinkedin />
           </a>
           <div
             onClick={handleCopy}
-            style={{...styles.socialIcon, color: isCopied ? "#007bff" : "#ffffff"}}
+            style={styles.socialIcon}
             onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-3px)";
-              e.target.style.background = "rgba(0, 123, 255, 0.3)";
+              e.target.style.color = "#007bff";
+              e.target.style.background = "rgba(0, 123, 255, 0.1)";
+              e.target.style.transform = "translateY(-4px)";
             }}
             onMouseLeave={(e) => {
+              e.target.style.color = "#a0a0a0";
+              e.target.style.background = "rgba(255, 255, 255, 0.05)";
               e.target.style.transform = "translateY(0)";
-              e.target.style.background = "rgba(255, 255, 255, 0.1)";
             }}
           >
             <FaEnvelope />
           </div>
         </div>
-        <p style={{color: "#b0b0b0", fontSize: "14px"}}>
-          © 2024 Dimalsha Praveen. All rights reserved.
+        <p style={styles.footerText}>
+          © 2024 Dimalsha Praveen. Crafted with passion and attention to detail.
         </p>
       </footer>
 
-      {/* Copy Success Message */}
       <div style={styles.copyMessage}>
-        📧 Email copied to clipboard!
+        <FaCheckCircle /> Email copied to clipboard!
       </div>
       
       <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-30px) rotate(1deg); }
-          66% { transform: translateY(-20px) rotate(-1deg); }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
         }
         
         html {
           scroll-behavior: smooth;
         }
         
-        * {
-          box-sizing: border-box;
-        }
-        
         body {
           margin: 0;
           overflow-x: hidden;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        input:focus,
+        textarea:focus {
+          outline: none;
+        }
+
+        a {
+          text-decoration: none;
+        }
+
+        button {
+          font-family: inherit;
         }
       `}</style>
     </div>
