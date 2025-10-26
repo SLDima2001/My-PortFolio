@@ -136,7 +136,7 @@ function Portfolio() {
     {
       title: "Explore Sri Lanka Mobile App",
       description: "React-Native Mobile app For foreigner to get an idea about Sri Lanka Details and show latest offer details from web app.Backend Create Using Python",
-      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/Gemini_Generated_Image_vikovnvikovnviko.png",
+      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/MobileApp.png?raw=true",
       tech: ["React-Native", "Python", "MongoDB","REST API"],
       liveUrl: "#",
       githubUrl: "#",
