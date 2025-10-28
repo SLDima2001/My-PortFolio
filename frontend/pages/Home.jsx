@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle } from "react-icons/fa";
-import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs } from "react-icons/si";
+import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle, FaMobile, FaBars, FaTimes } from "react-icons/fa";
+import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs, SiPython } from "react-icons/si";
 
 function Portfolio() {
   const sectionRefs = useRef([]);
@@ -13,9 +13,13 @@ function Portfolio() {
   const [activeSection, setActiveSection] = useState('about');
   const [scrollY, setScrollY] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth > 768) setMenuOpen(false);
+    };
     const handleScroll = () => setScrollY(window.scrollY);
     const handleMouseMove = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
     
@@ -100,11 +104,17 @@ function Portfolio() {
     };
   }, []);
 
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+  };
+
   const skills = [
     { name: "React", icon: <FaReact />, color: "#61DAFB" },
-    { name: "React Native", icon: <FaReact />, color: "#61DAFB" },
+    { name: "React Native", icon: <FaMobile />, color: "#61DAFB" },
     { name: "Node.js", icon: <FaNodeJs />, color: "#339933" },
-    { name: "Python", icon: "🐍", color: "#3776AB" },
+    { name: "Python", icon: <SiPython />, color: "#3776AB" },
     { name: ".NET", icon: "⚡", color: "#512BD4" },
     { name: "MongoDB", icon: <SiMongodb />, color: "#47A248" },
     { name: "Express", icon: <SiExpress />, color: "#000000" },
@@ -204,7 +214,7 @@ function Portfolio() {
       background: scrollY > 50 ? "rgba(10, 10, 10, 0.98)" : "transparent",
       backdropFilter: scrollY > 50 ? "blur(20px)" : "none",
       border: scrollY > 50 ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
-      padding: "24px 40px",
+      padding: isMobile ? "20px 24px" : "24px 40px",
       position: "fixed",
       top: 0,
       left: 0,
@@ -223,16 +233,42 @@ function Portfolio() {
     },
 
     logo: {
-      fontSize: "20px",
+      fontSize: isMobile ? "16px" : "20px",
       fontWeight: "700",
       color: "#ffffff",
       letterSpacing: "-0.5px",
     },
 
+    hamburger: {
+      fontSize: "24px",
+      color: "#ffffff",
+      cursor: "pointer",
+      display: isMobile ? "block" : "none",
+      zIndex: 1001,
+    },
+
     nav: {
-      display: "flex",
+      display: isMobile ? "none" : "flex",
       gap: "40px",
       alignItems: "center",
+    },
+
+    mobileMenu: {
+      position: "fixed",
+      top: 0,
+      right: menuOpen ? 0 : "-100%",
+      width: "280px",
+      height: "100vh",
+      background: "rgba(10, 10, 10, 0.98)",
+      backdropFilter: "blur(20px)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      padding: "80px 40px 40px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "32px",
+      transition: "right 0.3s ease",
+      zIndex: 999,
+      boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.3)",
     },
 
     navLink: {
@@ -244,6 +280,14 @@ function Portfolio() {
       position: "relative",
     },
 
+    mobileNavLink: {
+      color: "#a0a0a0",
+      textDecoration: "none",
+      fontSize: "18px",
+      fontWeight: "500",
+      transition: "all 0.3s ease",
+    },
+
     navLinkActive: {
       color: "#ffffff",
     },
@@ -252,7 +296,7 @@ function Portfolio() {
       paddingTop: "0",
       maxWidth: "1400px",
       margin: "0 auto",
-      padding: "0 40px",
+      padding: isMobile ? "0 24px" : "0 40px",
     },
 
     heroSection: {
@@ -260,8 +304,8 @@ function Portfolio() {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: "80px",
-      paddingTop: "100px",
+      gap: isMobile ? "40px" : "80px",
+      paddingTop: isMobile ? "100px" : "100px",
       flexDirection: isMobile ? "column" : "row",
     },
 
@@ -276,7 +320,7 @@ function Portfolio() {
       background: "rgba(0, 123, 255, 0.1)",
       border: "1px solid rgba(0, 123, 255, 0.3)",
       borderRadius: "50px",
-      fontSize: "14px",
+      fontSize: isMobile ? "12px" : "14px",
       fontWeight: "500",
       color: "#007bff",
       marginBottom: "24px",
@@ -284,7 +328,7 @@ function Portfolio() {
     },
 
     heroTitle: {
-      fontSize: isMobile ? "48px" : "72px",
+      fontSize: isMobile ? "36px" : "72px",
       fontWeight: "800",
       lineHeight: "1.1",
       marginBottom: "24px",
@@ -300,7 +344,7 @@ function Portfolio() {
     },
 
     heroSubtitle: {
-      fontSize: "20px",
+      fontSize: isMobile ? "16px" : "20px",
       color: "#a0a0a0",
       marginBottom: "40px",
       lineHeight: "1.6",
@@ -318,9 +362,9 @@ function Portfolio() {
       background: "#007bff",
       color: "#ffffff",
       border: "none",
-      padding: "14px 32px",
+      padding: isMobile ? "12px 24px" : "14px 32px",
       borderRadius: "8px",
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       fontWeight: "600",
       cursor: "pointer",
       transition: "all 0.3s ease",
@@ -333,9 +377,9 @@ function Portfolio() {
       background: "transparent",
       color: "#ffffff",
       border: "1px solid rgba(255, 255, 255, 0.2)",
-      padding: "14px 32px",
+      padding: isMobile ? "12px 24px" : "14px 32px",
       borderRadius: "8px",
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       fontWeight: "600",
       cursor: "pointer",
       transition: "all 0.3s ease",
@@ -344,7 +388,7 @@ function Portfolio() {
     statsGrid: {
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "40px",
+      gap: isMobile ? "24px" : "40px",
       marginTop: "20px",
     },
 
@@ -353,14 +397,14 @@ function Portfolio() {
     },
 
     statNumber: {
-      fontSize: "36px",
+      fontSize: isMobile ? "28px" : "36px",
       fontWeight: "700",
       color: "#ffffff",
       marginBottom: "8px",
     },
 
     statLabel: {
-      fontSize: "14px",
+      fontSize: isMobile ? "12px" : "14px",
       color: "#a0a0a0",
       fontWeight: "500",
     },
@@ -380,7 +424,7 @@ function Portfolio() {
     },
 
     section: {
-      marginBottom: "160px",
+      marginBottom: isMobile ? "80px" : "160px",
       opacity: 0,
       transform: "translateY(50px)",
       transition: "all 0.8s ease",
@@ -388,7 +432,7 @@ function Portfolio() {
 
     sectionHeader: {
       textAlign: "center",
-      marginBottom: "80px",
+      marginBottom: isMobile ? "48px" : "80px",
     },
 
     sectionLabel: {
@@ -397,7 +441,7 @@ function Portfolio() {
       background: "rgba(0, 123, 255, 0.1)",
       border: "1px solid rgba(0, 123, 255, 0.3)",
       borderRadius: "50px",
-      fontSize: "13px",
+      fontSize: isMobile ? "11px" : "13px",
       fontWeight: "600",
       color: "#007bff",
       marginBottom: "16px",
@@ -406,7 +450,7 @@ function Portfolio() {
     },
 
     sectionTitle: {
-      fontSize: isMobile ? "40px" : "56px",
+      fontSize: isMobile ? "32px" : "56px",
       fontWeight: "700",
       color: "#ffffff",
       marginBottom: "16px",
@@ -414,37 +458,110 @@ function Portfolio() {
     },
 
     sectionDescription: {
-      fontSize: "18px",
+      fontSize: isMobile ? "16px" : "18px",
       color: "#a0a0a0",
       maxWidth: "600px",
       margin: "0 auto",
       lineHeight: "1.6",
     },
 
+    descriptionSection: {
+      background: "rgba(255, 255, 255, 0.03)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "20px",
+      padding: isMobile ? "32px 24px" : "48px 60px",
+      marginBottom: isMobile ? "48px" : "80px",
+    },
+
+    descriptionContent: {
+      display: "flex",
+      flexDirection: isMobile ? "column" : "row",
+      gap: isMobile ? "32px" : "60px",
+      alignItems: "flex-start",
+    },
+
+    descriptionText: {
+      flex: 1,
+    },
+
+    descriptionTitle: {
+      fontSize: isMobile ? "24px" : "32px",
+      fontWeight: "700",
+      color: "#ffffff",
+      marginBottom: "24px",
+      letterSpacing: "-0.5px",
+    },
+
+    descriptionParagraph: {
+      fontSize: isMobile ? "15px" : "16px",
+      color: "#a0a0a0",
+      lineHeight: "1.8",
+      marginBottom: "20px",
+    },
+
+    expertiseGrid: {
+      flex: 1,
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "20px",
+    },
+
+    expertiseItem: {
+      background: "rgba(255, 255, 255, 0.05)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "12px",
+      padding: "20px",
+      transition: "all 0.3s ease",
+    },
+
+    expertiseHeader: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      marginBottom: "12px",
+    },
+
+    expertiseIcon: {
+      fontSize: "24px",
+      color: "#007bff",
+    },
+
+    expertiseTitle: {
+      fontSize: isMobile ? "16px" : "18px",
+      fontWeight: "600",
+      color: "#ffffff",
+    },
+
+    expertiseDescription: {
+      fontSize: isMobile ? "14px" : "15px",
+      color: "#a0a0a0",
+      lineHeight: "1.6",
+    },
+
     skillsGrid: {
       display: "grid",
       gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)",
-      gap: "24px",
-      marginBottom: "80px",
+      gap: isMobile ? "16px" : "24px",
+      marginBottom: isMobile ? "48px" : "80px",
     },
 
     skillCard: {
       background: "rgba(255, 255, 255, 0.03)",
       border: "1px solid rgba(255, 255, 255, 0.1)",
       borderRadius: "16px",
-      padding: "32px 24px",
+      padding: isMobile ? "24px 16px" : "32px 24px",
       textAlign: "center",
       transition: "all 0.3s ease",
       cursor: "pointer",
     },
 
     skillIcon: {
-      fontSize: "48px",
+      fontSize: isMobile ? "36px" : "48px",
       marginBottom: "16px",
     },
 
     skillName: {
-      fontSize: "16px",
+      fontSize: isMobile ? "14px" : "16px",
       fontWeight: "600",
       color: "#ffffff",
     },
@@ -452,7 +569,7 @@ function Portfolio() {
     projectGrid: {
       display: "grid",
       gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
-      gap: "32px",
+      gap: isMobile ? "24px" : "32px",
     },
 
     projectCard: {
@@ -467,7 +584,7 @@ function Portfolio() {
 
     projectImageContainer: {
       width: "100%",
-      height: "280px",
+      height: isMobile ? "200px" : "280px",
       overflow: "hidden",
       position: "relative",
     },
@@ -494,7 +611,7 @@ function Portfolio() {
     },
 
     projectContent: {
-      padding: "32px",
+      padding: isMobile ? "24px" : "32px",
     },
 
     projectHeader: {
@@ -505,14 +622,14 @@ function Portfolio() {
     },
 
     projectTitle: {
-      fontSize: "24px",
+      fontSize: isMobile ? "20px" : "24px",
       fontWeight: "700",
       color: "#ffffff",
       marginBottom: "12px",
     },
 
     projectDescription: {
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       color: "#a0a0a0",
       lineHeight: "1.6",
       marginBottom: "24px",
@@ -530,7 +647,7 @@ function Portfolio() {
       background: "rgba(0, 123, 255, 0.1)",
       border: "1px solid rgba(0, 123, 255, 0.3)",
       borderRadius: "6px",
-      fontSize: "12px",
+      fontSize: isMobile ? "11px" : "12px",
       fontWeight: "500",
       color: "#007bff",
     },
@@ -538,6 +655,7 @@ function Portfolio() {
     projectLinks: {
       display: "flex",
       gap: "12px",
+      flexWrap: "wrap",
     },
 
     projectLink: {
@@ -546,7 +664,7 @@ function Portfolio() {
       gap: "6px",
       color: "#a0a0a0",
       textDecoration: "none",
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       fontWeight: "500",
       transition: "all 0.3s ease",
       padding: "8px 16px",
@@ -563,7 +681,7 @@ function Portfolio() {
     },
 
     contactTitle: {
-      fontSize: isMobile ? "36px" : "48px",
+      fontSize: isMobile ? "32px" : "48px",
       fontWeight: "700",
       color: "#ffffff",
       marginBottom: "16px",
@@ -571,7 +689,7 @@ function Portfolio() {
     },
 
     contactSubtitle: {
-      fontSize: "18px",
+      fontSize: isMobile ? "16px" : "18px",
       color: "#a0a0a0",
       marginBottom: "48px",
       maxWidth: "600px",
@@ -588,12 +706,12 @@ function Portfolio() {
 
     input: {
       width: "100%",
-      padding: "16px 20px",
+      padding: isMobile ? "14px 18px" : "16px 20px",
       borderRadius: "12px",
       border: "1px solid rgba(255, 255, 255, 0.1)",
       background: "rgba(255, 255, 255, 0.05)",
       color: "#ffffff",
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       transition: "all 0.3s ease",
       fontFamily: "inherit",
     },
@@ -609,9 +727,9 @@ function Portfolio() {
       background: "#007bff",
       color: "#ffffff",
       border: "none",
-      padding: "16px 32px",
+      padding: isMobile ? "14px 28px" : "16px 32px",
       borderRadius: "12px",
-      fontSize: "16px",
+      fontSize: isMobile ? "15px" : "16px",
       fontWeight: "600",
       cursor: "pointer",
       transition: "all 0.3s ease",
@@ -625,23 +743,24 @@ function Portfolio() {
     footer: {
       background: "rgba(255, 255, 255, 0.03)",
       borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-      padding: "60px 40px 40px",
+      padding: isMobile ? "40px 24px 32px" : "60px 40px 40px",
       textAlign: "center",
     },
 
     socialIcons: {
       display: "flex",
       justifyContent: "center",
-      gap: "16px",
+      gap: isMobile ? "12px" : "16px",
       marginBottom: "32px",
+      flexWrap: "wrap",
     },
 
     socialIcon: {
-      fontSize: "20px",
+      fontSize: isMobile ? "18px" : "20px",
       color: "#a0a0a0",
       transition: "all 0.3s ease",
       cursor: "pointer",
-      padding: "16px",
+      padding: isMobile ? "14px" : "16px",
       background: "rgba(255, 255, 255, 0.05)",
       borderRadius: "12px",
       border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -649,19 +768,19 @@ function Portfolio() {
 
     footerText: {
       color: "#666",
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       fontWeight: "400",
     },
 
     copyMessage: {
       position: "fixed",
-      bottom: "30px",
-      right: "30px",
+      bottom: isMobile ? "20px" : "30px",
+      right: isMobile ? "20px" : "30px",
       background: "#007bff",
       color: "#ffffff",
-      padding: "16px 24px",
+      padding: isMobile ? "14px 20px" : "16px 24px",
       borderRadius: "12px",
-      fontSize: "14px",
+      fontSize: isMobile ? "13px" : "14px",
       fontWeight: "500",
       zIndex: 1000,
       transform: isCopied ? "translateY(0)" : "translateY(100px)",
@@ -670,6 +789,7 @@ function Portfolio() {
       display: "flex",
       alignItems: "center",
       gap: "8px",
+      maxWidth: isMobile ? "calc(100% - 40px)" : "auto",
     },
   };
 
@@ -695,8 +815,26 @@ function Portfolio() {
               Contact
             </a>
           </nav>
+          <div style={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </div>
         </div>
       </header>
+
+      <div style={styles.mobileMenu}>
+        <a href="#about" style={{...styles.mobileNavLink, ...(activeSection === 'about' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#about')}>
+          About
+        </a>
+        <a href="#skills" style={{...styles.mobileNavLink, ...(activeSection === 'skills' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#skills')}>
+          Skills
+        </a>
+        <a href="#projects" style={{...styles.mobileNavLink, ...(activeSection === 'projects' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#projects')}>
+          Projects
+        </a>
+        <a href="#contact" style={{...styles.mobileNavLink, ...(activeSection === 'contact' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#contact')}>
+          Contact
+        </a>
+      </div>
 
       <main style={styles.main}>
         <section style={styles.heroSection} id="about" ref={(el) => (sectionRefs.current[0] = el)}>
@@ -759,7 +897,96 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="skills" style={styles.section} ref={(el) => (sectionRefs.current[1] = el)}>
+        <section style={styles.descriptionSection} ref={(el) => (sectionRefs.current[1] = el)}>
+          <div style={styles.descriptionContent}>
+            <div style={styles.descriptionText}>
+              <h2 style={styles.descriptionTitle}>About Me</h2>
+              <p style={styles.descriptionParagraph}>
+                I'm a versatile full-stack developer with a passion for creating seamless digital experiences. 
+                My journey in software development has equipped me with a diverse skill set spanning both web 
+                and mobile platforms, allowing me to build comprehensive solutions from concept to deployment.
+              </p>
+              <p style={styles.descriptionParagraph}>
+                With extensive experience in React Native, I've developed cross-platform mobile applications 
+                that deliver native-like performance and user experiences. My backend expertise in Python enables 
+                me to build robust, scalable server-side applications and RESTful APIs that power modern applications.
+              </p>
+              <p style={styles.descriptionParagraph}>
+                I believe in writing clean, maintainable code and creating intuitive user interfaces that not only 
+                look great but also provide exceptional functionality. Whether it's building a responsive web application, 
+                developing a mobile app, or designing a comprehensive full-stack solution, I approach every project 
+                with dedication and attention to detail.
+              </p>
+            </div>
+            
+            <div style={styles.expertiseGrid}>
+              <div 
+                style={styles.expertiseItem}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                }}
+              >
+                <div style={styles.expertiseHeader}>
+                  <FaMobile style={styles.expertiseIcon} />
+                  <h3 style={styles.expertiseTitle}>Mobile Development</h3>
+                </div>
+                <p style={styles.expertiseDescription}>
+                  Specialized in React Native for building cross-platform mobile applications with 
+                  smooth animations, offline capabilities, and native integrations.
+                </p>
+              </div>
+              
+              <div 
+                style={styles.expertiseItem}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                }}
+              >
+                <div style={styles.expertiseHeader}>
+                  <SiPython style={styles.expertiseIcon} />
+                  <h3 style={styles.expertiseTitle}>Backend with Python</h3>
+                </div>
+                <p style={styles.expertiseDescription}>
+                  Proficient in Python for backend development, creating efficient APIs, data processing 
+                  pipelines, and integrating with databases and third-party services.
+                </p>
+              </div>
+              
+              <div 
+                style={styles.expertiseItem}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                }}
+              >
+                <div style={styles.expertiseHeader}>
+                  <FaReact style={styles.expertiseIcon} />
+                  <h3 style={styles.expertiseTitle}>Full-Stack Development</h3>
+                </div>
+                <p style={styles.expertiseDescription}>
+                  End-to-end application development using modern JavaScript frameworks, Node.js, 
+                  and database technologies to deliver complete, production-ready solutions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="skills" style={styles.section} ref={(el) => (sectionRefs.current[2] = el)}>
           <div style={styles.sectionHeader}>
             <div style={styles.sectionLabel}>Technical Expertise</div>
             <h2 style={styles.sectionTitle}>Skills & Technologies</h2>
@@ -792,7 +1019,7 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="projects" style={styles.section} ref={(el) => (sectionRefs.current[2] = el)}>
+        <section id="projects" style={styles.section} ref={(el) => (sectionRefs.current[3] = el)}>
           <div style={styles.sectionHeader}>
             <div style={styles.sectionLabel}>Portfolio</div>
             <h2 style={styles.sectionTitle}>Featured Projects</h2>
@@ -808,16 +1035,20 @@ function Portfolio() {
                 key={index}
                 style={styles.projectCard}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = "translateY(-8px)";
+                    e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
+                  }
                   const overlay = e.currentTarget.querySelector('.project-overlay');
-                  if (overlay) overlay.style.opacity = "1";
+                  if (overlay && !isMobile) overlay.style.opacity = "1";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                  }
                   const overlay = e.currentTarget.querySelector('.project-overlay');
-                  if (overlay) overlay.style.opacity = "0";
+                  if (overlay && !isMobile) overlay.style.opacity = "0";
                 }}
               >
                 <div style={styles.projectImageContainer}>
@@ -875,7 +1106,7 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="contact" style={styles.section} ref={(el) => (sectionRefs.current[3] = el)}>
+        <section id="contact" style={styles.section} ref={(el) => (sectionRefs.current[4] = el)}>
           <div style={styles.contactSection}>
             <h2 style={styles.contactTitle}>Let's Work Together</h2>
             <p style={styles.contactSubtitle}>
