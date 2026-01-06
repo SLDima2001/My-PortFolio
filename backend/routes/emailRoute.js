@@ -7,45 +7,57 @@ const router = express.Router();
 
 // Route for the first form
 router.post('/form1', async (req, res) => {
-  const { name, email, phone, message } = req.body;
-
   try {
+    const { name, email, phone, message } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide name, email, and message' 
+      });
+    }
+
     // Create a transporter
     let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'lahirutoursorg@gmail.com', // Your email
-        pass: 'wnvddlqypbboyutp' // Your email password
+        user: process.env.EMAIL_USER || 'lahirutoursorg@gmail.com',
+        pass: process.env.EMAIL_PASS || 'wnvddlqypbboyutp'
       }
     });
 
     // Email options
     let mailOptions = {
-      from: 'lahirutoursorg@gmail.com',
-      to: 'dimalshapraveen2001@gmail.com', // Recipient email
-      subject: 'Contact Form Submission',
-      text: `
-      Name: ${name}\n
-      Email: ${email}\n
-      Phone: ${phone}\n
-      Message: ${message}
+      from: process.env.EMAIL_USER || 'lahirutoursorg@gmail.com',
+      to: 'dimalshapraveen2001@gmail.com',
+      subject: 'New Contact Form Submission - Portfolio',
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
       `
     };
 
     // Send email
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).send('Failed to send email');
-      } else {
-        return res.status(200).send('Email sent successfully');
-      }
+    await transporter.sendMail(mailOptions);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Email sent successfully' 
     });
+
   } catch (error) {
-    return res.status(500).send('An error occurred while sending the email');
+    console.error('Email error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to send email',
+      error: error.message 
+    });
   }
 });
-
-
-
 
 export default router;

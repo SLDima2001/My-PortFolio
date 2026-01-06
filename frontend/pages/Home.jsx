@@ -14,6 +14,8 @@ function Portfolio() {
   const [scrollY, setScrollY] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
+  const cursorDotRef = useRef(null);
+  const cursorRingRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,7 +23,17 @@ function Portfolio() {
       if (window.innerWidth > 768) setMenuOpen(false);
     };
     const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.left = `${e.clientX}px`;
+        cursorDotRef.current.style.top = `${e.clientY}px`;
+      }
+      if (cursorRingRef.current) {
+        cursorRingRef.current.style.left = `${e.clientX}px`;
+        cursorRingRef.current.style.top = `${e.clientY}px`;
+      }
+    };
     
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
@@ -53,34 +65,40 @@ function Portfolio() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    // Show loading state
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Sending...';
+    submitBtn.disabled = true;
+    
     try {
       const response = await fetch('https://my-port-folio-onn7.vercel.app/send-email/form1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ name, email, phone, message }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error sending email: ${response.status}`);
-      }
-
       const responseData = await response.json();
-      if (responseData.success) {
+      
+      if (response.ok && responseData.success) {
         setName('');
         setEmail('');
         setPhone('');
         setMessage('');
-        alert('Message sent successfully!');
+        alert('✅ Message sent successfully! I will get back to you soon.');
       } else {
-        alert('Failed to send email.');
+        alert('❌ Failed to send message. Please try again or email me directly.');
       }
     } catch (error) {
-      console.error(error);
-      alert('Success');
+      console.error('Submit error:', error);
+      alert('❌ Network error. Please check your connection or email me directly at dimalshapraveen2001@gmail.com');
+    } finally {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
     }
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -117,7 +135,7 @@ function Portfolio() {
     { name: "Python", icon: <SiPython />, color: "#3776AB" },
     { name: ".NET", icon: "⚡", color: "#512BD4" },
     { name: "MongoDB", icon: <SiMongodb />, color: "#47A248" },
-    { name: "Express", icon: <SiExpress />, color: "#000000" },
+    { name: "Express", icon: <SiExpress />, color: "#ffffff" },
     { name: "JavaScript", icon: <SiJavascript />, color: "#F7DF1E" },
     { name: "TypeScript", icon: <SiTypescript />, color: "#3178C6" },
     { name: "Tailwind", icon: <SiTailwindcss />, color: "#06B6D4" },
@@ -172,746 +190,124 @@ function Portfolio() {
     }
   ];
 
-  const styles = {
-    app: {
-      fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
-      background: "#0a0a0a",
-      color: "#ffffff",
-      minHeight: "100vh",
-      overflowX: "hidden",
-      position: "relative",
-    },
-    
-    cursor: {
-      position: "fixed",
-      width: "20px",
-      height: "20px",
-      border: "2px solid #007bff",
-      borderRadius: "50%",
-      pointerEvents: "none",
-      zIndex: 9999,
-      left: `${mousePosition.x - 10}px`,
-      top: `${mousePosition.y - 10}px`,
-      transition: "transform 0.1s ease",
-      display: isMobile ? "none" : "block",
-    },
-
-    backgroundPattern: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: `
-        radial-gradient(circle at 20% 50%, rgba(0, 123, 255, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(0, 255, 150, 0.05) 0%, transparent 50%)
-      `,
-      zIndex: -1,
-    },
-
-    header: {
-      background: scrollY > 50 ? "rgba(10, 10, 10, 0.98)" : "transparent",
-      backdropFilter: scrollY > 50 ? "blur(20px)" : "none",
-      border: scrollY > 50 ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
-      padding: isMobile ? "20px 24px" : "24px 40px",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      transition: "all 0.3s ease",
-      boxShadow: scrollY > 50 ? "0 8px 32px rgba(0, 0, 0, 0.3)" : "none",
-    },
-
-    headerContent: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      maxWidth: "1400px",
-      margin: "0 auto",
-    },
-
-    logo: {
-      fontSize: isMobile ? "16px" : "20px",
-      fontWeight: "700",
-      color: "#ffffff",
-      letterSpacing: "-0.5px",
-    },
-
-    hamburger: {
-      fontSize: "24px",
-      color: "#ffffff",
-      cursor: "pointer",
-      display: isMobile ? "block" : "none",
-      zIndex: 1001,
-    },
-
-    nav: {
-      display: isMobile ? "none" : "flex",
-      gap: "40px",
-      alignItems: "center",
-    },
-
-    mobileMenu: {
-      position: "fixed",
-      top: 0,
-      right: menuOpen ? 0 : "-100%",
-      width: "280px",
-      height: "100vh",
-      background: "rgba(10, 10, 10, 0.98)",
-      backdropFilter: "blur(20px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      padding: "80px 40px 40px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "32px",
-      transition: "right 0.3s ease",
-      zIndex: 999,
-      boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.3)",
-    },
-
-    navLink: {
-      color: "#a0a0a0",
-      textDecoration: "none",
-      fontSize: "15px",
-      fontWeight: "500",
-      transition: "all 0.3s ease",
-      position: "relative",
-    },
-
-    mobileNavLink: {
-      color: "#a0a0a0",
-      textDecoration: "none",
-      fontSize: "18px",
-      fontWeight: "500",
-      transition: "all 0.3s ease",
-    },
-
-    navLinkActive: {
-      color: "#ffffff",
-    },
-
-    main: {
-      paddingTop: "0",
-      maxWidth: "1400px",
-      margin: "0 auto",
-      padding: isMobile ? "0 24px" : "0 40px",
-    },
-
-    heroSection: {
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: isMobile ? "40px" : "80px",
-      paddingTop: isMobile ? "100px" : "100px",
-      flexDirection: isMobile ? "column" : "row",
-    },
-
-    heroContent: {
-      flex: 1,
-      maxWidth: "700px",
-    },
-
-    heroLabel: {
-      display: "inline-block",
-      padding: "8px 20px",
-      background: "rgba(0, 123, 255, 0.1)",
-      border: "1px solid rgba(0, 123, 255, 0.3)",
-      borderRadius: "50px",
-      fontSize: isMobile ? "12px" : "14px",
-      fontWeight: "500",
-      color: "#007bff",
-      marginBottom: "24px",
-      letterSpacing: "0.5px",
-    },
-
-    heroTitle: {
-      fontSize: isMobile ? "36px" : "72px",
-      fontWeight: "800",
-      lineHeight: "1.1",
-      marginBottom: "24px",
-      color: "#ffffff",
-      letterSpacing: "-2px",
-    },
-
-    heroHighlight: {
-      background: "linear-gradient(135deg, #007bff 0%, #8a2be2 100%)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-    },
-
-    heroSubtitle: {
-      fontSize: isMobile ? "16px" : "20px",
-      color: "#a0a0a0",
-      marginBottom: "40px",
-      lineHeight: "1.6",
-      fontWeight: "400",
-    },
-
-    ctaButtons: {
-      display: "flex",
-      gap: "16px",
-      flexWrap: "wrap",
-      marginBottom: "60px",
-    },
-
-    primaryButton: {
-      background: "#007bff",
-      color: "#ffffff",
-      border: "none",
-      padding: isMobile ? "12px 24px" : "14px 32px",
-      borderRadius: "8px",
-      fontSize: isMobile ? "14px" : "15px",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    },
-
-    secondaryButton: {
-      background: "transparent",
-      color: "#ffffff",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      padding: isMobile ? "12px 24px" : "14px 32px",
-      borderRadius: "8px",
-      fontSize: isMobile ? "14px" : "15px",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-    },
-
-    statsGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gap: isMobile ? "24px" : "40px",
-      marginTop: "20px",
-    },
-
-    statItem: {
-      textAlign: "left",
-    },
-
-    statNumber: {
-      fontSize: isMobile ? "28px" : "36px",
-      fontWeight: "700",
-      color: "#ffffff",
-      marginBottom: "8px",
-    },
-
-    statLabel: {
-      fontSize: isMobile ? "12px" : "14px",
-      color: "#a0a0a0",
-      fontWeight: "500",
-    },
-
-    heroImageContainer: {
-      position: "relative",
-      flex: "0 0 auto",
-    },
-
-    heroImage: {
-      width: isMobile ? "280px" : "420px",
-      height: isMobile ? "280px" : "420px",
-      borderRadius: "20px",
-      objectFit: "cover",
-      boxShadow: "0 25px 80px rgba(0, 123, 255, 0.2)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-    },
-
-    section: {
-      marginBottom: isMobile ? "80px" : "160px",
-      opacity: 0,
-      transform: "translateY(50px)",
-      transition: "all 0.8s ease",
-    },
-
-    sectionHeader: {
-      textAlign: "center",
-      marginBottom: isMobile ? "48px" : "80px",
-    },
-
-    sectionLabel: {
-      display: "inline-block",
-      padding: "6px 16px",
-      background: "rgba(0, 123, 255, 0.1)",
-      border: "1px solid rgba(0, 123, 255, 0.3)",
-      borderRadius: "50px",
-      fontSize: isMobile ? "11px" : "13px",
-      fontWeight: "600",
-      color: "#007bff",
-      marginBottom: "16px",
-      letterSpacing: "1px",
-      textTransform: "uppercase",
-    },
-
-    sectionTitle: {
-      fontSize: isMobile ? "32px" : "56px",
-      fontWeight: "700",
-      color: "#ffffff",
-      marginBottom: "16px",
-      letterSpacing: "-1px",
-    },
-
-    sectionDescription: {
-      fontSize: isMobile ? "16px" : "18px",
-      color: "#a0a0a0",
-      maxWidth: "600px",
-      margin: "0 auto",
-      lineHeight: "1.6",
-    },
-
-    descriptionSection: {
-      background: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      padding: isMobile ? "32px 24px" : "48px 60px",
-      marginBottom: isMobile ? "48px" : "80px",
-    },
-
-    descriptionContent: {
-      display: "flex",
-      flexDirection: isMobile ? "column" : "row",
-      gap: isMobile ? "32px" : "60px",
-      alignItems: "flex-start",
-    },
-
-    descriptionText: {
-      flex: 1,
-    },
-
-    descriptionTitle: {
-      fontSize: isMobile ? "24px" : "32px",
-      fontWeight: "700",
-      color: "#ffffff",
-      marginBottom: "24px",
-      letterSpacing: "-0.5px",
-    },
-
-    descriptionParagraph: {
-      fontSize: isMobile ? "15px" : "16px",
-      color: "#a0a0a0",
-      lineHeight: "1.8",
-      marginBottom: "20px",
-    },
-
-    expertiseGrid: {
-      flex: 1,
-      display: "grid",
-      gridTemplateColumns: "1fr",
-      gap: "20px",
-    },
-
-    expertiseItem: {
-      background: "rgba(255, 255, 255, 0.05)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "12px",
-      padding: "20px",
-      transition: "all 0.3s ease",
-    },
-
-    expertiseHeader: {
-      display: "flex",
-      alignItems: "center",
-      gap: "12px",
-      marginBottom: "12px",
-    },
-
-    expertiseIcon: {
-      fontSize: "24px",
-      color: "#007bff",
-    },
-
-    expertiseTitle: {
-      fontSize: isMobile ? "16px" : "18px",
-      fontWeight: "600",
-      color: "#ffffff",
-    },
-
-    expertiseDescription: {
-      fontSize: isMobile ? "14px" : "15px",
-      color: "#a0a0a0",
-      lineHeight: "1.6",
-    },
-
-    skillsGrid: {
-      display: "grid",
-      gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)",
-      gap: isMobile ? "16px" : "24px",
-      marginBottom: isMobile ? "48px" : "80px",
-    },
-
-    skillCard: {
-      background: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "16px",
-      padding: isMobile ? "24px 16px" : "32px 24px",
-      textAlign: "center",
-      transition: "all 0.3s ease",
-      cursor: "pointer",
-    },
-
-    skillIcon: {
-      fontSize: isMobile ? "36px" : "48px",
-      marginBottom: "16px",
-    },
-
-    skillName: {
-      fontSize: isMobile ? "14px" : "16px",
-      fontWeight: "600",
-      color: "#ffffff",
-    },
-
-    projectGrid: {
-      display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
-      gap: isMobile ? "24px" : "32px",
-    },
-
-    projectCard: {
-      background: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      overflow: "hidden",
-      transition: "all 0.3s ease",
-      cursor: "pointer",
-      position: "relative",
-    },
-
-    projectImageContainer: {
-      width: "100%",
-      height: isMobile ? "200px" : "280px",
-      overflow: "hidden",
-      position: "relative",
-    },
-
-    projectImage: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      transition: "all 0.5s ease",
-    },
-
-    projectOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: "linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%)",
-      opacity: 0,
-      transition: "all 0.3s ease",
-      display: "flex",
-      alignItems: "flex-end",
-      padding: "24px",
-    },
-
-    projectContent: {
-      padding: isMobile ? "24px" : "32px",
-    },
-
-    projectHeader: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      marginBottom: "16px",
-    },
-
-    projectTitle: {
-      fontSize: isMobile ? "20px" : "24px",
-      fontWeight: "700",
-      color: "#ffffff",
-      marginBottom: "12px",
-    },
-
-    projectDescription: {
-      fontSize: isMobile ? "14px" : "15px",
-      color: "#a0a0a0",
-      lineHeight: "1.6",
-      marginBottom: "24px",
-    },
-
-    projectTech: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: "8px",
-      marginBottom: "24px",
-    },
-
-    techBadge: {
-      padding: "6px 12px",
-      background: "rgba(0, 123, 255, 0.1)",
-      border: "1px solid rgba(0, 123, 255, 0.3)",
-      borderRadius: "6px",
-      fontSize: isMobile ? "11px" : "12px",
-      fontWeight: "500",
-      color: "#007bff",
-    },
-
-    projectLinks: {
-      display: "flex",
-      gap: "12px",
-      flexWrap: "wrap",
-    },
-
-    projectLink: {
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      color: "#a0a0a0",
-      textDecoration: "none",
-      fontSize: isMobile ? "13px" : "14px",
-      fontWeight: "500",
-      transition: "all 0.3s ease",
-      padding: "8px 16px",
-      borderRadius: "6px",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-    },
-
-    contactSection: {
-      background: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "24px",
-      padding: isMobile ? "40px 24px" : "80px 60px",
-      textAlign: "center",
-    },
-
-    contactTitle: {
-      fontSize: isMobile ? "32px" : "48px",
-      fontWeight: "700",
-      color: "#ffffff",
-      marginBottom: "16px",
-      letterSpacing: "-1px",
-    },
-
-    contactSubtitle: {
-      fontSize: isMobile ? "16px" : "18px",
-      color: "#a0a0a0",
-      marginBottom: "48px",
-      maxWidth: "600px",
-      margin: "0 auto 48px",
-    },
-
-    formGrid: {
-      display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-      gap: "16px",
-      maxWidth: "800px",
-      margin: "0 auto",
-    },
-
-    input: {
-      width: "100%",
-      padding: isMobile ? "14px 18px" : "16px 20px",
-      borderRadius: "12px",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      background: "rgba(255, 255, 255, 0.05)",
-      color: "#ffffff",
-      fontSize: isMobile ? "14px" : "15px",
-      transition: "all 0.3s ease",
-      fontFamily: "inherit",
-    },
-
-    textarea: {
-      gridColumn: isMobile ? "1" : "1 / -1",
-      minHeight: "150px",
-      resize: "vertical",
-    },
-
-    submitButton: {
-      gridColumn: isMobile ? "1" : "1 / -1",
-      background: "#007bff",
-      color: "#ffffff",
-      border: "none",
-      padding: isMobile ? "14px 28px" : "16px 32px",
-      borderRadius: "12px",
-      fontSize: isMobile ? "15px" : "16px",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "8px",
-      margin: "16px auto 0",
-    },
-
-    footer: {
-      background: "rgba(255, 255, 255, 0.03)",
-      borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-      padding: isMobile ? "40px 24px 32px" : "60px 40px 40px",
-      textAlign: "center",
-    },
-
-    socialIcons: {
-      display: "flex",
-      justifyContent: "center",
-      gap: isMobile ? "12px" : "16px",
-      marginBottom: "32px",
-      flexWrap: "wrap",
-    },
-
-    socialIcon: {
-      fontSize: isMobile ? "18px" : "20px",
-      color: "#a0a0a0",
-      transition: "all 0.3s ease",
-      cursor: "pointer",
-      padding: isMobile ? "14px" : "16px",
-      background: "rgba(255, 255, 255, 0.05)",
-      borderRadius: "12px",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-    },
-
-    footerText: {
-      color: "#666",
-      fontSize: isMobile ? "13px" : "14px",
-      fontWeight: "400",
-    },
-
-    copyMessage: {
-      position: "fixed",
-      bottom: isMobile ? "20px" : "30px",
-      right: isMobile ? "20px" : "30px",
-      background: "#007bff",
-      color: "#ffffff",
-      padding: isMobile ? "14px 20px" : "16px 24px",
-      borderRadius: "12px",
-      fontSize: isMobile ? "13px" : "14px",
-      fontWeight: "500",
-      zIndex: 1000,
-      transform: isCopied ? "translateY(0)" : "translateY(100px)",
-      opacity: isCopied ? 1 : 0,
-      transition: "all 0.3s ease",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      maxWidth: isMobile ? "calc(100% - 40px)" : "auto",
-    },
-  };
-
   return (
-    <div style={styles.app}>
-      <div style={styles.cursor}></div>
-      <div style={styles.backgroundPattern}></div>
+    <div className="portfolio-app">
+      {!isMobile && (
+        <>
+          <div ref={cursorDotRef} className="cursor-dot"></div>
+          <div ref={cursorRingRef} className="cursor-ring"></div>
+        </>
+      )}
       
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.logo}>Dimalsha Praveen</div>
-          <nav style={styles.nav}>
-            <a href="#about" style={{...styles.navLink, ...(activeSection === 'about' ? styles.navLinkActive : {})}}>
+      <div className="animated-background">
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+      </div>
+      
+      <header className={`header ${scrollY > 50 ? 'scrolled' : ''}`}>
+        <div className="header-content">
+          <div className="logo">
+            <span className="logo-text">Dimalsha</span>
+            <span className="logo-dot">.</span>
+          </div>
+          <nav className="nav">
+            <a href="#about" className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}>
               About
             </a>
-            <a href="#skills" style={{...styles.navLink, ...(activeSection === 'skills' ? styles.navLinkActive : {})}}>
+            <a href="#skills" className={`nav-link ${activeSection === 'skills' ? 'active' : ''}`}>
               Skills
             </a>
-            <a href="#projects" style={{...styles.navLink, ...(activeSection === 'projects' ? styles.navLinkActive : {})}}>
+            <a href="#projects" className={`nav-link ${activeSection === 'projects' ? 'active' : ''}`}>
               Projects
             </a>
-            <a href="#contact" style={{...styles.navLink, ...(activeSection === 'contact' ? styles.navLinkActive : {})}}>
+            <a href="#contact" className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}>
               Contact
             </a>
           </nav>
-          <div style={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <FaTimes /> : <FaBars />}
           </div>
         </div>
       </header>
 
-      <div style={styles.mobileMenu}>
-        <a href="#about" style={{...styles.mobileNavLink, ...(activeSection === 'about' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#about')}>
+      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
+        <a href="#about" className={`mobile-nav-link ${activeSection === 'about' ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '#about')}>
           About
         </a>
-        <a href="#skills" style={{...styles.mobileNavLink, ...(activeSection === 'skills' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#skills')}>
+        <a href="#skills" className={`mobile-nav-link ${activeSection === 'skills' ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '#skills')}>
           Skills
         </a>
-        <a href="#projects" style={{...styles.mobileNavLink, ...(activeSection === 'projects' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#projects')}>
+        <a href="#projects" className={`mobile-nav-link ${activeSection === 'projects' ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '#projects')}>
           Projects
         </a>
-        <a href="#contact" style={{...styles.mobileNavLink, ...(activeSection === 'contact' ? styles.navLinkActive : {})}} onClick={(e) => handleNavClick(e, '#contact')}>
+        <a href="#contact" className={`mobile-nav-link ${activeSection === 'contact' ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '#contact')}>
           Contact
         </a>
       </div>
 
-      <main style={styles.main}>
-        <section style={styles.heroSection} id="about" ref={(el) => (sectionRefs.current[0] = el)}>
-          <div style={styles.heroContent}>
-            <div style={styles.heroLabel}>Full Stack Developer</div>
-            <h1 style={styles.heroTitle}>
-              Hi, I'm <span style={styles.heroHighlight}>Dimalsha</span><br />
+      <main className="main-content">
+        <section className="hero-section" id="about" ref={(el) => (sectionRefs.current[0] = el)}>
+          <div className="hero-content">
+            <div className="hero-label floating">Full Stack Developer</div>
+            <h1 className="hero-title">
+              Hi, I'm <span className="gradient-text">Dimalsha</span><br />
               Building Digital Experiences
             </h1>
-            <p style={styles.heroSubtitle}>
+            <p className="hero-subtitle">
               I'm a passionate full-stack developer and UI/UX designer specializing in creating modern, 
               scalable web applications with beautiful user experiences. With expertise in React, Node.js, 
               and modern design tools, I transform ideas into reality.
             </p>
-            <div style={styles.ctaButtons}>
-              <button 
-                style={styles.primaryButton}
-                onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
-                onClick={handleDownloadCV}
-              >
+            <div className="cta-buttons">
+              <button className="btn-primary" onClick={handleDownloadCV}>
                 <FaDownload /> Download CV
               </button>
-              <button 
-                style={styles.secondaryButton}
-                onMouseEnter={(e) => {
-                  e.target.style.borderColor = "#007bff";
-                  e.target.style.color = "#007bff";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.borderColor = "rgba(255, 255, 255, 0.2)";
-                  e.target.style.color = "#ffffff";
-                }}
-                onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-              >
+              <button className="btn-secondary" onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}>
                 Get In Touch
               </button>
             </div>
-            <div style={styles.statsGrid}>
-              <div style={styles.statItem}>
-                <div style={styles.statNumber}>6+</div>
-                <div style={styles.statLabel}>Projects Completed</div>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <div className="stat-number">6+</div>
+                <div className="stat-label">Projects Completed</div>
               </div>
-              <div style={styles.statItem}>
-                <div style={styles.statNumber}>2+</div>
-                <div style={styles.statLabel}>Years Experience</div>
+              <div className="stat-item">
+                <div className="stat-number">2+</div>
+                <div className="stat-label">Years Experience</div>
               </div>
-              <div style={styles.statItem}>
-                <div style={styles.statNumber}>100%</div>
-                <div style={styles.statLabel}>Client Satisfaction</div>
+              <div className="stat-item">
+                <div className="stat-number">100%</div>
+                <div className="stat-label">Client Satisfaction</div>
               </div>
             </div>
           </div>
-          <div style={styles.heroImageContainer}>
-            <img
-              src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
-              alt="Dimalsha Praveen"
-              style={styles.heroImage}
-            />
+          <div className="hero-image-container">
+            <div className="image-wrapper">
+              <img
+                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
+                alt="Dimalsha Praveen"
+                className="hero-image"
+              />
+            </div>
           </div>
         </section>
 
-        <section style={styles.descriptionSection} ref={(el) => (sectionRefs.current[1] = el)}>
-          <div style={styles.descriptionContent}>
-            <div style={styles.descriptionText}>
-              <h2 style={styles.descriptionTitle}>About Me</h2>
-              <p style={styles.descriptionParagraph}>
+        <section className="about-section section" ref={(el) => (sectionRefs.current[1] = el)}>
+          <div className="about-content">
+            <div className="about-text">
+              <h2 className="section-title">About Me</h2>
+              <p className="about-paragraph">
                 I'm a versatile full-stack developer with a passion for creating seamless digital experiences. 
                 My journey in software development has equipped me with a diverse skill set spanning both web 
                 and mobile platforms, allowing me to build comprehensive solutions from concept to deployment.
               </p>
-              <p style={styles.descriptionParagraph}>
+              <p className="about-paragraph">
                 With extensive experience in React Native, I've developed cross-platform mobile applications 
                 that deliver native-like performance and user experiences. My backend expertise in Python enables 
                 me to build robust, scalable server-side applications and RESTful APIs that power modern applications.
               </p>
-              <p style={styles.descriptionParagraph}>
+              <p className="about-paragraph">
                 I believe in writing clean, maintainable code and creating intuitive user interfaces that not only 
                 look great but also provide exceptional functionality. Whether it's building a responsive web application, 
                 developing a mobile app, or designing a comprehensive full-stack solution, I approach every project 
@@ -919,65 +315,35 @@ function Portfolio() {
               </p>
             </div>
             
-            <div style={styles.expertiseGrid}>
-              <div 
-                style={styles.expertiseItem}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                }}
-              >
-                <div style={styles.expertiseHeader}>
-                  <FaMobile style={styles.expertiseIcon} />
-                  <h3 style={styles.expertiseTitle}>Mobile Development</h3>
+            <div className="expertise-grid">
+              <div className="expertise-card">
+                <div className="expertise-icon">
+                  <FaMobile />
                 </div>
-                <p style={styles.expertiseDescription}>
+                <h3 className="expertise-title">Mobile Development</h3>
+                <p className="expertise-description">
                   Specialized in React Native for building cross-platform mobile applications with 
                   smooth animations, offline capabilities, and native integrations.
                 </p>
               </div>
               
-              <div 
-                style={styles.expertiseItem}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                }}
-              >
-                <div style={styles.expertiseHeader}>
-                  <SiPython style={styles.expertiseIcon} />
-                  <h3 style={styles.expertiseTitle}>Backend with Python</h3>
+              <div className="expertise-card">
+                <div className="expertise-icon">
+                  <SiPython />
                 </div>
-                <p style={styles.expertiseDescription}>
+                <h3 className="expertise-title">Backend with Python</h3>
+                <p className="expertise-description">
                   Proficient in Python for backend development, creating efficient APIs, data processing 
                   pipelines, and integrating with databases and third-party services.
                 </p>
               </div>
               
-              <div 
-                style={styles.expertiseItem}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                  e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                }}
-              >
-                <div style={styles.expertiseHeader}>
-                  <FaReact style={styles.expertiseIcon} />
-                  <h3 style={styles.expertiseTitle}>Full-Stack Development</h3>
+              <div className="expertise-card">
+                <div className="expertise-icon">
+                  <FaReact />
                 </div>
-                <p style={styles.expertiseDescription}>
+                <h3 className="expertise-title">Full-Stack Development</h3>
+                <p className="expertise-description">
                   End-to-end application development using modern JavaScript frameworks, Node.js, 
                   and database technologies to deliver complete, production-ready solutions.
                 </p>
@@ -986,118 +352,60 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="skills" style={styles.section} ref={(el) => (sectionRefs.current[2] = el)}>
-          <div style={styles.sectionHeader}>
-            <div style={styles.sectionLabel}>Technical Expertise</div>
-            <h2 style={styles.sectionTitle}>Skills & Technologies</h2>
-            <p style={styles.sectionDescription}>
+        <section id="skills" className="skills-section section" ref={(el) => (sectionRefs.current[2] = el)}>
+          <div className="section-header">
+            <div className="section-label">Technical Expertise</div>
+            <h2 className="section-title">Skills & Technologies</h2>
+            <p className="section-description">
               Proficient in modern web technologies and frameworks with a focus on creating 
               performant, scalable applications
             </p>
           </div>
           
-          <div style={styles.skillsGrid}>
+          <div className="skills-grid">
             {skills.map((skill, index) => (
-              <div 
-                key={index}
-                style={styles.skillCard}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.borderColor = skill.color;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                }}
-              >
-                <div style={{...styles.skillIcon, color: skill.color}}>{skill.icon}</div>
-                <div style={styles.skillName}>{skill.name}</div>
+              <div key={index} className="skill-card" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="skill-icon" style={{ color: skill.color }}>
+                  {skill.icon}
+                </div>
+                <div className="skill-name">{skill.name}</div>
               </div>
             ))}
           </div>
         </section>
 
-        <section id="projects" style={styles.section} ref={(el) => (sectionRefs.current[3] = el)}>
-          <div style={styles.sectionHeader}>
-            <div style={styles.sectionLabel}>Portfolio</div>
-            <h2 style={styles.sectionTitle}>Featured Projects</h2>
-            <p style={styles.sectionDescription}>
+        <section id="projects" className="projects-section section" ref={(el) => (sectionRefs.current[3] = el)}>
+          <div className="section-header">
+            <div className="section-label">Portfolio</div>
+            <h2 className="section-title">Featured Projects</h2>
+            <p className="section-description">
               A selection of recent work showcasing my expertise in full-stack development 
               and UI/UX design
             </p>
           </div>
           
-          <div style={styles.projectGrid}>
+          <div className="projects-grid">
             {projects.map((project, index) => (
-              <div 
-                key={index}
-                style={styles.projectCard}
-                onMouseEnter={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.transform = "translateY(-8px)";
-                    e.currentTarget.style.borderColor = "rgba(0, 123, 255, 0.3)";
-                  }
-                  const overlay = e.currentTarget.querySelector('.project-overlay');
-                  if (overlay && !isMobile) overlay.style.opacity = "1";
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                  }
-                  const overlay = e.currentTarget.querySelector('.project-overlay');
-                  if (overlay && !isMobile) overlay.style.opacity = "0";
-                }}
-              >
-                <div style={styles.projectImageContainer}>
-                  <img src={project.image} alt={project.title} style={styles.projectImage} />
-                  <div className="project-overlay" style={styles.projectOverlay}>
-                    <div style={styles.projectLinks}>
-                      <a 
-                        href={project.liveUrl} 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={styles.projectLink}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = "rgba(0, 123, 255, 0.2)";
-                          e.target.style.color = "#007bff";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = "transparent";
-                          e.target.style.color = "#a0a0a0";
-                        }}
-                      >
+              <div key={index} className="project-card" style={{ animationDelay: `${index * 0.15}s` }}>
+                <div className="project-image-wrapper">
+                  <img src={project.image} alt={project.title} className="project-image" />
+                  <div className="project-overlay">
+                    <div className="project-links">
+                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="project-link">
                         <FaExternalLinkAlt /> Live Demo
                       </a>
-                      <a 
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={styles.projectLink}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = "rgba(0, 123, 255, 0.2)";
-                          e.target.style.color = "#007bff";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = "transparent";
-                          e.target.style.color = "#a0a0a0";
-                        }}
-                      >
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="project-link">
                         <FaCode /> View Code
                       </a>
                     </div>
                   </div>
                 </div>
-                <div style={styles.projectContent}>
-                  <div style={styles.projectHeader}>
-                    <h3 style={styles.projectTitle}>{project.title}</h3>
-                  </div>
-                  <p style={styles.projectDescription}>{project.description}</p>
-                  <div style={styles.projectTech}>
+                <div className="project-content">
+                  <h3 className="project-title">{project.title}</h3>
+                  <p className="project-description">{project.description}</p>
+                  <div className="project-tech">
                     {project.tech.map((tech, techIndex) => (
-                      <span key={techIndex} style={styles.techBadge}>{tech}</span>
+                      <span key={techIndex} className="tech-badge">{tech}</span>
                     ))}
                   </div>
                 </div>
@@ -1106,24 +414,22 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="contact" style={styles.section} ref={(el) => (sectionRefs.current[4] = el)}>
-          <div style={styles.contactSection}>
-            <h2 style={styles.contactTitle}>Let's Work Together</h2>
-            <p style={styles.contactSubtitle}>
+        <section id="contact" className="contact-section section" ref={(el) => (sectionRefs.current[4] = el)}>
+          <div className="contact-container">
+            <h2 className="contact-title">Let's Work Together</h2>
+            <p className="contact-subtitle">
               Have a project in mind? Let's discuss how we can bring your ideas to life. 
               I'm always open to new opportunities and collaborations.
             </p>
             
-            <form onSubmit={handleSubmit}>
-              <div style={styles.formGrid}>
+            <form onSubmit={handleSubmit} className="contact-form">
+              <div className="form-row">
                 <input 
                   type="text" 
                   placeholder="Your Name" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
-                  style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  className="form-input"
                   required 
                 />
                 <input 
@@ -1131,122 +437,62 @@ function Portfolio() {
                   placeholder="Your Email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
-                  style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  className="form-input"
                   required 
                 />
+              </div>
+              <div className="form-row">
                 <input 
                   type="tel" 
                   placeholder="Phone Number" 
                   value={phone} 
                   onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
-                  style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  className="form-input"
                   required 
                 />
                 <input 
                   type="text" 
                   placeholder="Subject" 
-                  style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
+                  className="form-input"
                 />
-                <textarea
-                  placeholder="Your Message"
-                  value={message} 
-                  onChange={(e) => setMessage(e.target.value)}
-                  style={{...styles.input, ...styles.textarea}}
-                  onFocus={(e) => e.target.style.borderColor = "#007bff"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
-                  required
-                />
-                <button
-                  type="submit"
-                  style={styles.submitButton}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "translateY(-2px)";
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 123, 255, 0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "translateY(0)";
-                    e.target.style.boxShadow = "none";
-                  }}
-                >
-                  Send Message <FaArrowRight />
-                </button>
               </div>
+              <textarea
+                placeholder="Your Message"
+                value={message} 
+                onChange={(e) => setMessage(e.target.value)}
+                className="form-input form-textarea"
+                required
+              />
+              <button type="submit" className="btn-submit">
+                Send Message <FaArrowRight />
+              </button>
             </form>
           </div>
         </section>
       </main>
 
-      <footer style={styles.footer}>
-        <div style={styles.socialIcons}>
-          <a
-            href="https://github.com/SLDima2001"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={styles.socialIcon}
-            onMouseEnter={(e) => {
-              e.target.style.color = "#ffffff";
-              e.target.style.background = "rgba(255, 255, 255, 0.1)";
-              e.target.style.transform = "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = "#a0a0a0";
-              e.target.style.background = "rgba(255, 255, 255, 0.05)";
-              e.target.style.transform = "translateY(0)";
-            }}
-          >
+      <footer className="footer">
+        <div className="social-icons">
+          <a href="https://github.com/SLDima2001" target="_blank" rel="noopener noreferrer" className="social-icon">
             <FaGithub />
           </a>
-          <a
-            href="https://www.linkedin.com/in/dimalsha-praveen-kariyawasam/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={styles.socialIcon}
-            onMouseEnter={(e) => {
-              e.target.style.color = "#0077b5";
-              e.target.style.background = "rgba(0, 119, 181, 0.1)";
-              e.target.style.transform = "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = "#a0a0a0";
-              e.target.style.background = "rgba(255, 255, 255, 0.05)";
-              e.target.style.transform = "translateY(0)";
-            }}
-          >
+          <a href="https://www.linkedin.com/in/dimalsha-praveen-kariyawasam/" target="_blank" rel="noopener noreferrer" className="social-icon">
             <FaLinkedin />
           </a>
-          <div
-            onClick={handleCopy}
-            style={styles.socialIcon}
-            onMouseEnter={(e) => {
-              e.target.style.color = "#007bff";
-              e.target.style.background = "rgba(0, 123, 255, 0.1)";
-              e.target.style.transform = "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = "#a0a0a0";
-              e.target.style.background = "rgba(255, 255, 255, 0.05)";
-              e.target.style.transform = "translateY(0)";
-            }}
-          >
+          <div onClick={handleCopy} className="social-icon">
             <FaEnvelope />
           </div>
         </div>
-        <p style={styles.footerText}>
+        <p className="footer-text">
           © 2024 Dimalsha Praveen. Crafted with passion and attention to detail.
         </p>
       </footer>
 
-      <div style={styles.copyMessage}>
+      <div className={`copy-notification ${isCopied ? 'show' : ''}`}>
         <FaCheckCircle /> Email copied to clipboard!
       </div>
       
-      <style jsx>{`
+      <style>{`
         * {
           box-sizing: border-box;
           margin: 0;
@@ -1256,28 +502,963 @@ function Portfolio() {
         html {
           scroll-behavior: smooth;
         }
-        
+
         body {
           margin: 0;
           overflow-x: hidden;
         }
+        
+        .portfolio-app {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          background: #0a0a0f;
+          color: #ffffff;
+          min-height: 100vh;
+          overflow-x: hidden;
+          position: relative;
+        }
 
-        input::placeholder,
-        textarea::placeholder {
+        .cursor-dot {
+          position: fixed;
+          width: 8px;
+          height: 8px;
+          background: #00d4ff;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 10000;
+          transform: translate(-50%, -50%);
+          transition: transform 0.1s ease;
+        }
+
+        .cursor-ring {
+          position: fixed;
+          width: 40px;
+          height: 40px;
+          border: 2px solid rgba(0, 212, 255, 0.4);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9999;
+          transform: translate(-50%, -50%);
+          transition: all 0.15s ease;
+        }
+
+        .animated-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          overflow: hidden;
+        }
+
+        .gradient-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.3;
+          animation: float 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, #00d4ff 0%, transparent 70%);
+          top: -10%;
+          left: -10%;
+          animation-delay: 0s;
+        }
+
+        .orb-2 {
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, #9333ea 0%, transparent 70%);
+          bottom: -10%;
+          right: -5%;
+          animation-delay: 7s;
+        }
+
+        .orb-3 {
+          width: 450px;
+          height: 450px;
+          background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+          top: 40%;
+          right: -15%;
+          animation-delay: 14s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(100px, -100px) scale(1.1); }
+          66% { transform: translate(-100px, 100px) scale(0.9); }
+        }
+
+        .header {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          padding: 24px 40px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header.scrolled {
+          background: rgba(10, 10, 15, 0.95);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+          max-width: 1400px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .logo {
+          font-size: 24px;
+          font-weight: 800;
+          letter-spacing: -1px;
+        }
+
+        .logo-text {
+          background: linear-gradient(135deg, #00d4ff 0%, #9333ea 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .logo-dot {
+          color: #00d4ff;
+          font-size: 32px;
+        }
+
+        .nav {
+          display: flex;
+          gap: 40px;
+          align-items: center;
+        }
+
+        .nav-link {
+          color: rgba(255, 255, 255, 0.6);
+          text-decoration: none;
+          font-size: 15px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          position: relative;
+          padding: 8px 0;
+        }
+
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #00d4ff, #9333ea);
+          transition: width 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+          color: #ffffff;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+          width: 100%;
+        }
+
+        .hamburger {
+          display: none;
+          font-size: 24px;
+          color: #ffffff;
+          cursor: pointer;
+          z-index: 1001;
+        }
+
+        .mobile-menu {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 300px;
+          height: 100vh;
+          background: rgba(10, 10, 15, 0.98);
+          backdrop-filter: blur(20px);
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 100px 40px 40px;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+          transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 999;
+        }
+
+        .mobile-menu.open {
+          right: 0;
+        }
+
+        .mobile-nav-link {
+          color: rgba(255, 255, 255, 0.6);
+          text-decoration: none;
+          font-size: 20px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .mobile-nav-link.active,
+        .mobile-nav-link:hover {
+          color: #00d4ff;
+          transform: translateX(10px);
+        }
+
+        .main-content {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 40px;
+        }
+
+        .hero-section {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 80px;
+          padding-top: 100px;
+        }
+
+        .hero-content {
+          flex: 1;
+          max-width: 700px;
+        }
+
+        .hero-label {
+          display: inline-block;
+          padding: 10px 24px;
+          background: rgba(0, 212, 255, 0.1);
+          border: 1px solid rgba(0, 212, 255, 0.3);
+          border-radius: 50px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #00d4ff;
+          margin-bottom: 32px;
+          letter-spacing: 0.5px;
+        }
+
+        .floating {
+          animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+
+        .hero-title {
+          font-size: 72px;
+          font-weight: 900;
+          line-height: 1.1;
+          margin-bottom: 32px;
+          letter-spacing: -2px;
+        }
+
+        .gradient-text {
+          background: linear-gradient(135deg, #00d4ff 0%, #9333ea 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradient-shift 3s ease infinite;
+          background-size: 200% 200%;
+        }
+
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+          font-size: 20px;
+          color: rgba(255, 255, 255, 0.7);
+          margin-bottom: 40px;
+          line-height: 1.7;
+          font-weight: 400;
+        }
+
+        .cta-buttons {
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+          margin-bottom: 60px;
+        }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+          color: #ffffff;
+          border: none;
+          padding: 16px 32px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+          background: transparent;
+          color: #ffffff;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          padding: 16px 32px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+          border-color: #00d4ff;
+          color: #00d4ff;
+          transform: translateY(-3px);
+          box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 40px;
+          margin-top: 20px;
+        }
+
+        .stat-item {
+          text-align: left;
+        }
+
+        .stat-number {
+          font-size: 42px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #00d4ff 0%, #9333ea 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 8px;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.6);
+          font-weight: 500;
+        }
+
+        .hero-image-container {
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .image-wrapper {
+          position: relative;
+          width: 420px;
+          height: 420px;
+          animation: float-image 6s ease-in-out infinite;
+        }
+
+        @keyframes float-image {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(2deg); }
+        }
+
+        .hero-image {
+          width: 100%;
+          height: 100%;
+          border-radius: 30px;
+          object-fit: cover;
+          box-shadow: 0 30px 80px rgba(0, 212, 255, 0.3);
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .hero-image:hover {
+          transform: scale(1.05);
+          box-shadow: 0 40px 100px rgba(0, 212, 255, 0.5);
+        }
+
+        .section {
+          margin-bottom: 160px;
+          opacity: 0;
+          transform: translateY(50px);
+          transition: all 0.8s ease;
+        }
+
+        .about-section {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 30px;
+          padding: 80px 60px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .about-section::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -50%;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+          animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .about-content {
+          display: flex;
+          gap: 60px;
+          align-items: flex-start;
+          position: relative;
+          z-index: 1;
+        }
+
+        .about-text {
+          flex: 1;
+        }
+
+        .section-title {
+          font-size: 48px;
+          font-weight: 800;
+          color: #ffffff;
+          margin-bottom: 32px;
+          letter-spacing: -1px;
+        }
+
+        .about-paragraph {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.7);
+          line-height: 1.8;
+          margin-bottom: 24px;
+        }
+
+        .expertise-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .expertise-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 28px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+        }
+
+        .expertise-card:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(0, 212, 255, 0.4);
+          transform: translateY(-8px) rotateX(5deg);
+          box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .expertise-icon {
+          font-size: 32px;
+          color: #00d4ff;
+          margin-bottom: 16px;
+        }
+
+        .expertise-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #ffffff;
+          margin-bottom: 12px;
+        }
+
+        .expertise-description {
+          font-size: 15px;
+          color: rgba(255, 255, 255, 0.6);
+          line-height: 1.6;
+        }
+
+        .section-header {
+          text-align: center;
+          margin-bottom: 80px;
+        }
+
+        .section-label {
+          display: inline-block;
+          padding: 8px 20px;
+          background: rgba(0, 212, 255, 0.1);
+          border: 1px solid rgba(0, 212, 255, 0.3);
+          border-radius: 50px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #00d4ff;
+          margin-bottom: 20px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+        }
+
+        .section-description {
+          font-size: 18px;
+          color: rgba(255, 255, 255, 0.6);
+          max-width: 700px;
+          margin: 16px auto 0;
+          line-height: 1.7;
+        }
+
+        .skills-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 24px;
+        }
+
+        .skill-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 40px 24px;
+          text-align: center;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+          animation: fadeInUp 0.6s ease forwards;
+          opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .skill-card:hover {
+          background: rgba(255, 255, 255, 0.06);
+          transform: translateY(-12px) scale(1.05);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .skill-icon {
+          font-size: 56px;
+          margin-bottom: 20px;
+          transition: all 0.3s ease;
+        }
+
+        .skill-card:hover .skill-icon {
+          transform: rotateY(180deg) scale(1.1);
+        }
+
+        .skill-name {
+          font-size: 17px;
+          font-weight: 600;
+          color: #ffffff;
+        }
+
+        .projects-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+          gap: 32px;
+        }
+
+        .project-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 24px;
+          overflow: hidden;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+          animation: fadeInUp 0.6s ease forwards;
+          opacity: 0;
+        }
+
+        .project-card:hover {
+          transform: translateY(-12px);
+          border-color: rgba(0, 212, 255, 0.4);
+          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-image-wrapper {
+          width: 100%;
+          height: 320px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .project-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: all 0.5s ease;
+        }
+
+        .project-card:hover .project-image {
+          transform: scale(1.1);
+        }
+
+        .project-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.9) 100%);
+          opacity: 0;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding: 32px;
+        }
+
+        .project-card:hover .project-overlay {
+          opacity: 1;
+        }
+
+        .project-links {
+          display: flex;
+          gap: 16px;
+        }
+
+        .project-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #ffffff;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          padding: 12px 24px;
+          border-radius: 10px;
+          background: rgba(0, 212, 255, 0.2);
+          border: 1px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .project-link:hover {
+          background: rgba(0, 212, 255, 0.4);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .project-content {
+          padding: 32px;
+        }
+
+        .project-title {
+          font-size: 26px;
+          font-weight: 700;
+          color: #ffffff;
+          margin-bottom: 16px;
+        }
+
+        .project-description {
+          font-size: 15px;
+          color: rgba(255, 255, 255, 0.6);
+          line-height: 1.7;
+          margin-bottom: 24px;
+        }
+
+        .project-tech {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .tech-badge {
+          padding: 8px 16px;
+          background: rgba(0, 212, 255, 0.1);
+          border: 1px solid rgba(0, 212, 255, 0.3);
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #00d4ff;
+        }
+
+        .contact-section {
+          padding-bottom: 0;
+        }
+
+        .contact-container {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 30px;
+          padding: 80px 60px;
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .contact-container::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: conic-gradient(from 0deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+          animation: rotate 10s linear infinite;
+        }
+
+        .contact-title {
+          font-size: 56px;
+          font-weight: 800;
+          color: #ffffff;
+          margin-bottom: 20px;
+          letter-spacing: -1px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .contact-subtitle {
+          font-size: 18px;
+          color: rgba(255, 255, 255, 0.6);
+          max-width: 700px;
+          margin: 0 auto 60px;
+          line-height: 1.7;
+          position: relative;
+          z-index: 1;
+        }
+
+        .contact-form {
+          max-width: 800px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 1;
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 18px 24px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          font-size: 15px;
+          transition: all 0.3s ease;
+          font-family: inherit;
+        }
+
+        .form-input:focus {
+          outline: none;
+          border-color: #00d4ff;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-input::placeholder {
           color: rgba(255, 255, 255, 0.4);
         }
 
-        input:focus,
-        textarea:focus {
-          outline: none;
+        .form-textarea {
+          grid-column: 1 / -1;
+          min-height: 180px;
+          resize: vertical;
+          margin-bottom: 20px;
         }
 
-        a {
-          text-decoration: none;
+        .btn-submit {
+          background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+          color: #ffffff;
+          border: none;
+          padding: 18px 40px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
         }
 
-        button {
-          font-family: inherit;
+        .btn-submit:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .footer {
+          background: rgba(255, 255, 255, 0.02);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 60px 40px 40px;
+          text-align: center;
+          margin-top: 160px;
+        }
+
+        .social-icons {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          margin-bottom: 40px;
+        }
+
+        .social-icon {
+          font-size: 24px;
+          color: rgba(255, 255, 255, 0.6);
+          transition: all 0.3s ease;
+          cursor: pointer;
+          padding: 18px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-icon:hover {
+          color: #00d4ff;
+          background: rgba(0, 212, 255, 0.1);
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .footer-text {
+          color: rgba(255, 255, 255, 0.4);
+          font-size: 14px;
+          font-weight: 400;
+        }
+
+        .copy-notification {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+          color: #ffffff;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          z-index: 1000;
+          transform: translateY(100px);
+          opacity: 0;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .copy-notification.show {
+          transform: translateY(0);
+          opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+          .hamburger {
+            display: block;
+          }
+
+          .nav {
+            display: none;
+          }
+
+          .main-content {
+            padding: 0 24px;
+          }
+
+          .hero-section {
+            flex-direction: column;
+            gap: 40px;
+            padding-top: 120px;
+          }
+
+          .hero-title {
+            font-size: 42px;
+          }
+
+          .hero-subtitle {
+            font-size: 16px;
+          }
+
+          .image-wrapper {
+            width: 300px;
+            height: 300px;
+          }
+
+          .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+          }
+
+          .stat-number {
+            font-size: 28px;
+          }
+
+          .stat-label {
+            font-size: 12px;
+          }
+
+          .about-section {
+            padding: 40px 24px;
+          }
+
+          .about-content {
+            flex-direction: column;
+            gap: 40px;
+          }
+
+          .section-title {
+            font-size: 32px;
+          }
+
+          .skills-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+          }
+
+          .skill-card {
+            padding: 28px 16px;
+          }
+
+          .skill-icon {
+            font-size: 40px;
+          }
+
+          .projects-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .project-image-wrapper {
+            height: 220px;
+          }
+
+          .contact-container {
+            padding: 40px 24px;
+          }
+
+          .contact-title {
+            font-size: 36px;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .copy-notification {
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            max-width: calc(100% - 40px);
+          }
         }
       `}</style>
     </div>
