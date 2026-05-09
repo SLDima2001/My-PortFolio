@@ -174,7 +174,7 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.delete(`${apiUrl}/projects/${id}`, { headers });
+            await axios.delete(`${apiUrl}/projects/${id}?token=${token}`, { headers });
             fetchData();
         } catch (err) {
             alert('Delete failed');
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.delete(`${apiUrl}/feedback/${id}`, { headers });
+            await axios.delete(`${apiUrl}/feedback/${id}?token=${token}`, { headers });
             fetchData();
         } catch (err) {
             alert('Delete failed');
