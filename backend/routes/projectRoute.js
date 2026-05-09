@@ -9,7 +9,13 @@ const router = express.Router();
 
 // Multer configuration for memory storage
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ 
+    storage,
+    limits: { 
+        fieldSize: 10 * 1024 * 1024,
+        fileSize: 10 * 1024 * 1024
+    }
+});
 
 // GET all projects (Public)
 router.get('/', async (req, res) => {

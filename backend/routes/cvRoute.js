@@ -9,7 +9,13 @@ const router = express.Router();
 
 // Multer configuration
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ 
+    storage,
+    limits: { 
+        fieldSize: 10 * 1024 * 1024,
+        fileSize: 10 * 1024 * 1024
+    }
+});
 
 // Route to upload CV (Protected)
 router.post('/upload', authMiddleware, upload.single('cv'), async (req, res) => {
