@@ -46,7 +46,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -84,7 +85,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
         
         const formData = new FormData();
@@ -145,7 +147,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -163,7 +166,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -187,7 +191,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -220,7 +225,8 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { 
             Authorization: `Bearer ${token}`,
-            'x-auth-token': token
+            'x-auth-token': token,
+            'xdima-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
