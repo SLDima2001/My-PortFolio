@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle, FaMobile, FaBars, FaTimes } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle, FaMobile, FaBars, FaTimes, FaImages, FaChevronRight } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs, SiPython } from "react-icons/si";
 
 function Portfolio() {
