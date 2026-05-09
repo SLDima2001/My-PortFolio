@@ -1,40 +1,20 @@
-import express from  'express';
-import { feedback as Model} from '../models/Model.js';
-import { feedback } from '../models/Model.js';
+import express from 'express';
+import { feedback as Model } from '../models/Model.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
+const router = express.Router();
 
-
-const router = express.Router(); 
-
-//Route for save a new feedback
+// Route for save a new feedback (Public)
 router.post("/", async (request, response) => {
     try {
-        if (
-            !request.body.firstname ||
-            !request.body.lastname ||
-            !request.body.email ||
-            !request.body.phonenumber ||
-            !request.body.subject ||
-            !request.body.message ||
-            !request.body.rating
-        ) {
+        const { name, email, phone, subject, message } = request.body;
+        if (!name || !email || !phone || !message) {
             return response.status(400).send({
-                message: "Send All required fields: firstname,lastname,email,phonenumber,Date,subject,message",
+                message: "Send all required fields: name, email, phone, message",
             });
         }
-        const newfeedback = {
-            firstname: request.body.firstname,
-            lastname: request.body.lastname,
-            email: request.body.email,
-            phonenumber:request.body.phonenumber,
-            subject:request.body.subject,
-            message:request.body.message,
-            rating:request.body.rating,
-            
-        };
+        const newfeedback = { name, email, phone, subject, message };
         const feedback = await Model.create(newfeedback);
-
-
         return response.status(201).send(feedback);
     } catch (error) {
         console.log(error.message);
@@ -42,11 +22,10 @@ router.post("/", async (request, response) => {
     }
 });
 
-
-//Route for get all feedbacks from database 
-router.get('/', async (request, response) => {
+// Route for get all feedbacks from database (Protected)
+router.get('/', authMiddleware, async (request, response) => {
     try {
-        const feedback = await Model.find({});
+        const feedback = await Model.find({}).sort({ createdAt: -1 });
         return response.status(200).json({
             count: feedback.length,
             data: feedback
@@ -57,72 +36,19 @@ router.get('/', async (request, response) => {
     }
 });
 
-
-//Route for get one reservation from database by ID
-router.get('/:id', async (request, response) => {
+// Route for delete a feedback (Protected)
+router.delete('/:id', authMiddleware, async (request, response) => {
     try {
         const { id } = request.params;
-
-        const feedback = await Model.findById(id);
-        return response.status(200).json(feedback);
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({ message: error.message })
-    }
-});
-
-
-//Route for update a feedback
-router.put('/:id', async (request, response) => {
-    try {
-        if (
-            !request.body.firstname ||
-            !request.body.lastname ||
-            !request.body.email ||
-            !request.body.phonenumber ||
-            !request.body.subject ||
-            !request.body.message ||
-            !request.body.rating
-
-        ) {
-            return response.status(400).send({
-                message: 'Send All required fields:firstname,lastname,email,phonenumber,Date,subject,message',
-            });
-        }
-
-        const { id } = request.params;
-
-        const result = await feedback.findByIdAndUpdate(id, request.body);
-
-        if (!result) {
-            return response.status(404).json({ message: 'Feedback not found' });
-        }
-
-        return response.status(200).send({ message: 'Feedback Updated successfully' });
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({ message: error.message });
-    }
-});
-
-
-//Route for delete a book
-router.delete('/:id', async (request, response) => {
-    try {
-        const { id } = request.params;
-
-        const result = await feedback.findByIdAndDelete(id);
-
+        const result = await Model.findByIdAndDelete(id);
         if (!result) {
             return response.status(404).send({ message: 'Feedback not found' });
         }
-
         return response.status(200).send({ message: 'Feedback deleted successfully' });
     } catch (error) {
         console.log(error.message);
         response.status(500).send({ message: error.message });
     }
 });
-
 
 export default router;

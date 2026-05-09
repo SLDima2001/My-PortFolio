@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaExternalLinkAlt, FaReact, FaNodeJs, FaFigma, FaDatabase, FaArrowRight, FaCheckCircle, FaMobile, FaBars, FaTimes } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs, SiPython } from "react-icons/si";
 
@@ -46,11 +47,14 @@ function Portfolio() {
     };
   }, []);
 
-  const handleDownloadCV = () => {
-    const link = document.createElement('a');
-    link.href = "frontend/public/DimalshaResume.pdf";
-    link.download = "DimalshaResume.pdf";
-    link.click();
+  const handleDownloadCV = async () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+    try {
+      window.open(`${apiUrl}/cv/download`, '_blank');
+    } catch (error) {
+      console.error('Error downloading CV:', error);
+      alert('Error downloading CV. Please try again later.');
+    }
   };
 
   const myemail = "dimalshapraveen2001@gmail.com";
@@ -64,37 +68,38 @@ function Portfolio() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    // Show loading state
     const submitBtn = event.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
+    const subject = event.target.querySelector('input[placeholder="Subject"]')?.value || "General Inquiry";
+    
     submitBtn.innerHTML = 'Sending...';
     submitBtn.disabled = true;
     
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+
     try {
-      const response = await fetch('https://my-port-folio-onn7.vercel.app/send-email/form1', {
+      // 1. Send Email
+      await fetch(`${apiUrl}/send-email/form1`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, phone, message }),
       });
 
-      const responseData = await response.json();
-      
-      if (response.ok && responseData.success) {
-        setName('');
-        setEmail('');
-        setPhone('');
-        setMessage('');
-        alert('✅ Message sent successfully! I will get back to you soon.');
-      } else {
-        alert('❌ Failed to send message. Please try again or email me directly.');
-      }
+      // 2. Save to Database
+      await fetch(`${apiUrl}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, subject, message }),
+      });
+
+      setName('');
+      setEmail('');
+      setPhone('');
+      setMessage('');
+      alert('✅ Message sent successfully! I will get back to you soon.');
     } catch (error) {
       console.error('Submit error:', error);
-      alert('❌ Network error. Please check your connection or email me directly at dimalshapraveen2001@gmail.com');
+      alert('❌ Error sending message. Please try again.');
     } finally {
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;
@@ -142,53 +147,31 @@ function Portfolio() {
     { name: "Figma", icon: <FaFigma />, color: "#F24E1E" },
   ];
 
-  const projects = [
-    {
-      title: "Lahiru Tours",
-      description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management. Built with modern web technologies for optimal performance.",
-      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true",
-      tech: ["React", "Node.js", "MongoDB", "Express"],
-      liveUrl: "https://lahirutours.co.uk/",
-      githubUrl: "#",
-      featured: true
-    },
-    {
-      title: "Yale Art School UI/UX",
-      description: "A complete UI/UX redesign for Yale School of Art, incorporating modern design principles, accessibility standards, and interactive prototyping. Features innovative navigation and immersive gallery experiences.",
-      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/Project%202.png?raw=true",
-      tech: ["Figma", "UI/UX", "Prototyping", "Design Systems"],
-      liveUrl: "https://www.figma.com/proto/0ZqKjHGHQUoh4rqVAu3q1H/HCI?node-id=109-67&node-type=canvas&t=wgjCtr4Sy2AXhhh2-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=109%3A67",
-      githubUrl: "#",
-      featured: true
-    },
-    {
-      title: "Explore Sri Lanka Mobile App",
-      description: "React-Native Mobile app For foreigner to get an idea about Sri Lanka Details and show latest offer details from web app.Backend Create Using Python",
-      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/MobileApp.png?raw=true",
-      tech: ["React-Native", "Python", "MongoDB","REST API"],
-      liveUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Explore Sri Lanka Web App",
-      description: "Web Application For Add Businesses and Offers details through the web for show in explore Sri Lanka Mobile app ",
-      image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/WebApp.png?raw=true",
-      tech: ["React", "Node","Express", "MongoDB","Payhere Payment Gateway" ],
-      liveUrl: "#",
-      githubUrl: "https://github.com/SLDima2001/SriLanka-Login-Registration.git",
-      featured: false
-    },
-    {
-      title: "Mood Tracker Mobile App",
-      description: "Users can add their Mood and Save it in Mobile Phone",
-      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop",
-      tech: ["React-Native", "MongoDB"],
-      liveUrl: "#",
-      githubUrl: "#",
-      featured: false
-    }
-  ];
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+      try {
+        const response = await fetch(`${apiUrl}/projects`);
+        const data = await response.json();
+        setProjects(data.length > 0 ? data : [
+          {
+            title: "Lahiru Tours",
+            description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
+            image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true",
+            tech: ["React", "Node.js", "MongoDB", "Express"],
+            liveUrl: "https://lahirutours.co.uk/",
+            githubUrl: "#",
+            featured: true
+          }
+        ]);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   return (
     <div className="portfolio-app">
@@ -484,7 +467,9 @@ function Portfolio() {
           </div>
         </div>
         <p className="footer-text">
-          © 2024 Dimalsha Praveen. Crafted with passion and attention to detail.
+          <Link to="/admin-login" style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}>
+            © 2024 Dimalsha Praveen. Crafted with passion and attention to detail.
+          </Link>
         </p>
       </footer>
 

@@ -1,16 +1,20 @@
+import 'dotenv/config'
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import { PORT, mongodbURL } from './config.js';
 import Route from './routes/Route.js';
 import emailRoute from './routes/emailRoute.js';
-import 'dotenv/config'
+import adminRoute from './routes/adminRoute.js';
+import projectRoute from './routes/projectRoute.js';
+import cvRoute from './routes/cvRoute.js';
+import path from 'path';
 
 const app = express();
 
 // CORS Configuration - MUST come before other middleware
 const corsOptions = {
-  origin: '*', // Allow all origins (you can specify your frontend URL for production)
+  origin: ['http://localhost:5173', 'http://localhost:5555', 'https://my-port-folio-onn7.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -31,7 +35,13 @@ app.get('/', (req, res) => {
 });
 
 app.use('/send-email', emailRoute);
-app.use('/feedback', Route); // Add your feedback route
+app.use('/feedback', Route); 
+app.use('/admin', adminRoute);
+app.use('/projects', projectRoute);
+app.use('/cv', cvRoute);
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
 
 mongoose
   .connect(mongodbURL, {})
