@@ -44,7 +44,10 @@ const AdminDashboard = () => {
     const fetchData = async () => {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
+        const headers = { 
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
+        };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -80,7 +83,8 @@ const AdminDashboard = () => {
         e.preventDefault();
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
         };
         
         const formData = new FormData();
@@ -139,7 +143,10 @@ const AdminDashboard = () => {
     const handleDeleteProject = async (id) => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;
         const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
+        const headers = { 
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
+        };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -154,7 +161,10 @@ const AdminDashboard = () => {
     const handleDeleteMessage = async (id) => {
         if (!window.confirm('Are you sure you want to delete this message?')) return;
         const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
+        const headers = { 
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
+        };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -176,7 +186,8 @@ const AdminDashboard = () => {
         setCvUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -208,7 +219,8 @@ const AdminDashboard = () => {
         setProfileUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 

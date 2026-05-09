@@ -4,7 +4,12 @@ import { JWT_SECRET } from '../config.js';
 const authMiddleware = (req, res, next) => {
     // Check Authorization header (case-insensitive)
     const authHeader = req.header('Authorization') || req.header('authorization');
-    const token = authHeader?.split(' ')[1];
+    let token = authHeader?.split(' ')[1];
+    
+    // Fallback for Vercel environments that might strip Authorization header
+    if (!token) {
+        token = req.header('x-auth-token');
+    }
 
     if (!token) {
         console.log('Auth failed: No token provided');
