@@ -3,6 +3,45 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaSignOutAlt, FaFolderOpen, FaEnvelope, FaTachometerAlt, FaChevronRight, FaDownload, FaImages, FaUser } from 'react-icons/fa';
 
+const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1200;
+                const MAX_HEIGHT = 1200;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+                }, 'image/jpeg', 0.7);
+            };
+            img.onerror = (error) => reject(error);
+        };
+        reader.onerror = (error) => reject(error);
+    });
+};
+
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('projects');
     const [projects, setProjects] = useState([]);
@@ -106,9 +145,10 @@ const AdminDashboard = () => {
         formData.append('featured', projectForm.featured);
         
         if (projectImageFiles.length > 0) {
-            projectImageFiles.forEach(file => {
-                formData.append('images', file);
-            });
+            for (let file of projectImageFiles) {
+                const compressedFile = await compressImage(file);
+                formData.append('images', compressedFile);
+            }
         }
         
         // Also send existing images if editing
@@ -232,9 +272,10 @@ const AdminDashboard = () => {
         e.preventDefault();
         
         const formData = new FormData();
-        profileImageFiles.forEach(file => {
-            formData.append('images', file);
-        });
+        for (let file of profileImageFiles) {
+            const compressedFile = await compressImage(file);
+            formData.append('images', compressedFile);
+        }
 
         // In this simple implementation, we keep existing images
         profileImages.forEach(img => {
