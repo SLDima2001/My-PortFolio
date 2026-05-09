@@ -278,7 +278,7 @@ const AdminDashboard = () => {
         });
         setIsEditing(false);
         setCurrentProjectId(null);
-        setProjectImageFile(null);
+        setProjectImageFiles([]);
     };
 
     return (
