@@ -61,6 +61,9 @@ router.get('/download', async (req, res) => {
         if (!cv) {
             return res.status(404).json({ message: 'No CV found' });
         }
+        if (!cv.data) {
+            return res.status(404).json({ message: 'CV data is in an older format or corrupted. Please upload a new CV.' });
+        }
 
         const buffer = Buffer.from(cv.data, 'base64');
         res.setHeader('Content-Type', cv.mimetype);
