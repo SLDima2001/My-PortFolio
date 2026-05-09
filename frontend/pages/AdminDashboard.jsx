@@ -83,11 +83,19 @@ const AdminDashboard = () => {
     const handleProjectSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
+        console.log("Token retrieved from localStorage:", token ? "Present (Starts with " + token.substring(0, 10) + ")" : "MISSING OR NULL");
+
+        if (!token || token === 'undefined' || token === 'null') {
+            alert('Security token is missing or corrupted. Please log out and log back in.');
+            return;
+        }
+
         const headers = { 
             Authorization: `Bearer ${token}`,
             'x-auth-token': token,
             'xdima-token': token
         };
+        console.log("Sending headers object:", headers);
         
         const formData = new FormData();
         formData.append('title', projectForm.title);
