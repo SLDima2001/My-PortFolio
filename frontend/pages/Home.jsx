@@ -17,6 +17,8 @@ function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const cursorDotRef = useRef(null);
   const cursorRingRef = useRef(null);
+  const [profileImages, setProfileImages] = useState([]);
+  const [lightbox, setLightbox] = useState({ isOpen: false, images: [], currentIndex: 0 });
 
   useEffect(() => {
     const handleResize = () => {
@@ -150,28 +152,60 @@ function Portfolio() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
       try {
-        const response = await fetch(`${apiUrl}/projects`);
-        const data = await response.json();
-        setProjects(data.length > 0 ? data : [
+        // Fetch Projects
+        const pResponse = await fetch(`${apiUrl}/projects`);
+        const pData = await pResponse.json();
+        setProjects(pData.length > 0 ? pData : [
           {
             title: "Lahiru Tours",
             description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
-            image: "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true",
+            images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
             tech: ["React", "Node.js", "MongoDB", "Express"],
             liveUrl: "https://lahirutours.co.uk/",
             githubUrl: "#",
             featured: true
           }
         ]);
+
+        // Fetch Profile
+        const profResponse = await fetch(`${apiUrl}/profile`);
+        const profData = await profResponse.json();
+        setProfileImages(profData.images || []);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchProjects();
+    fetchData();
   }, []);
+
+  const openLightbox = (images, index = 0) => {
+    setLightbox({ isOpen: true, images, currentIndex: index });
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLightbox = () => {
+    setLightbox({ ...lightbox, isOpen: false });
+    document.body.style.overflow = 'auto';
+  };
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setLightbox(prev => ({
+      ...prev,
+      currentIndex: (prev.currentIndex + 1) % prev.images.length
+    }));
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setLightbox(prev => ({
+      ...prev,
+      currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length
+    }));
+  };
 
   return (
     <div className="portfolio-app">
@@ -266,12 +300,17 @@ function Portfolio() {
             </div>
           </div>
           <div className="hero-image-container">
-            <div className="image-wrapper">
+            <div className="image-wrapper" onClick={() => profileImages.length > 0 && openLightbox(profileImages)} style={{ cursor: profileImages.length > 0 ? 'pointer' : 'default' }}>
               <img
-                src="https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"
+                src={profileImages.length > 0 ? profileImages[0] : "https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/My.jpg?raw=true"}
                 alt="Dimalsha Praveen"
                 className="hero-image"
               />
+              {profileImages.length > 1 && (
+                <div className="image-count-badge">
+                  <FaImages /> +{profileImages.length - 1}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -370,10 +409,10 @@ function Portfolio() {
           <div className="projects-grid">
             {projects.map((project, index) => (
               <div key={index} className="project-card" style={{ animationDelay: `${index * 0.15}s` }}>
-                <div className="project-image-wrapper">
-                  <img src={project.image} alt={project.title} className="project-image" />
+                <div className="project-image-wrapper" onClick={() => project.images && project.images.length > 0 && openLightbox(project.images)} style={{ cursor: 'pointer' }}>
+                  <img src={project.images && project.images.length > 0 ? project.images[0] : project.image} alt={project.title} className="project-image" />
                   <div className="project-overlay">
-                    <div className="project-links">
+                    <div className="project-links" onClick={(e) => e.stopPropagation()}>
                       <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="project-link">
                         <FaExternalLinkAlt /> Live Demo
                       </a>
@@ -381,6 +420,11 @@ function Portfolio() {
                         <FaCode /> View Code
                       </a>
                     </div>
+                    {project.images && project.images.length > 1 && (
+                      <div className="gallery-indicator">
+                        <FaImages /> View Gallery ({project.images.length})
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="project-content">
@@ -476,6 +520,30 @@ function Portfolio() {
       <div className={`copy-notification ${isCopied ? 'show' : ''}`}>
         <FaCheckCircle /> Email copied to clipboard!
       </div>
+
+      {lightbox.isOpen && (
+        <div className="smart-lightbox" onClick={closeLightbox}>
+          <div className="lightbox-close"><FaTimes /></div>
+          <button className="lightbox-nav prev" onClick={prevImage}><FaChevronRight style={{ transform: 'rotate(180deg)' }} /></button>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img src={lightbox.images[lightbox.currentIndex]} alt="" className="lightbox-image" />
+            <div className="lightbox-counter">{lightbox.currentIndex + 1} / {lightbox.images.length}</div>
+          </div>
+          <button className="lightbox-nav next" onClick={nextImage}><FaChevronRight /></button>
+          
+          <div className="lightbox-thumbnails">
+             {lightbox.images.map((img, idx) => (
+               <div 
+                 key={idx} 
+                 className={`thumbnail ${idx === lightbox.currentIndex ? 'active' : ''}`}
+                 onClick={(e) => { e.stopPropagation(); setLightbox({ ...lightbox, currentIndex: idx }); }}
+               >
+                 <img src={img} alt="" />
+               </div>
+             ))}
+          </div>
+        </div>
+      )}
       
       <style>{`
         * {
@@ -1343,8 +1411,169 @@ function Portfolio() {
         }
 
         .copy-notification.show {
-          transform: translateY(0);
+          bottom: 40px;
           opacity: 1;
+        }
+
+        /* Smart Lightbox */
+        .smart-lightbox {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(10, 10, 15, 0.98);
+          backdrop-filter: blur(15px);
+          z-index: 99999;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .lightbox-close {
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          color: white;
+          font-size: 30px;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+          transform: scale(1.2) rotate(90deg);
+          color: #00d4ff;
+        }
+
+        .lightbox-nav {
+          position: absolute;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          font-size: 20px;
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+
+        .lightbox-nav:hover {
+          background: #00d4ff;
+          color: #0a0a0f;
+          transform: scale(1.1);
+        }
+
+        .lightbox-nav.prev { left: 40px; }
+        .lightbox-nav.next { right: 40px; }
+
+        .lightbox-content {
+          max-width: 85%;
+          max-height: 75vh;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .lightbox-image {
+          max-width: 100%;
+          max-height: 75vh;
+          object-fit: contain;
+          border-radius: 12px;
+          box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+          animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        .lightbox-counter {
+          margin-top: 20px;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.5);
+          background: rgba(0, 0, 0, 0.3);
+          padding: 5px 15px;
+          border-radius: 20px;
+        }
+
+        .lightbox-thumbnails {
+          position: absolute;
+          bottom: 30px;
+          display: flex;
+          gap: 15px;
+          padding: 10px;
+          max-width: 90%;
+          overflow-x: auto;
+        }
+
+        .thumbnail {
+          width: 60px;
+          height: 60px;
+          border-radius: 8px;
+          overflow: hidden;
+          cursor: pointer;
+          opacity: 0.5;
+          border: 2px solid transparent;
+          transition: all 0.3s ease;
+        }
+
+        .thumbnail.active {
+          opacity: 1;
+          border-color: #00d4ff;
+          transform: translateY(-5px);
+        }
+
+        .thumbnail img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        /* Gallery Indicators */
+        .image-count-badge {
+          position: absolute;
+          bottom: 20px;
+          right: 20px;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(5px);
+          padding: 8px 15px;
+          border-radius: 50px;
+          font-size: 13px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gallery-indicator {
+          margin-top: 15px;
+          font-size: 12px;
+          color: #00d4ff;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+          .lightbox-nav { width: 45px; height: 45px; font-size: 16px; }
+          .lightbox-nav.prev { left: 10px; }
+          .lightbox-nav.next { right: 10px; }
         }
 
         @media (max-width: 768px) {

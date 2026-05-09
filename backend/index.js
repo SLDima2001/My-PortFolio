@@ -8,6 +8,7 @@ import emailRoute from './routes/emailRoute.js';
 import adminRoute from './routes/adminRoute.js';
 import projectRoute from './routes/projectRoute.js';
 import cvRoute from './routes/cvRoute.js';
+import profileRoute from './routes/profileRoute.js';
 import path from 'path';
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/feedback', Route);
 app.use('/admin', adminRoute);
 app.use('/projects', projectRoute);
 app.use('/cv', cvRoute);
+app.use('/profile', profileRoute);
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));

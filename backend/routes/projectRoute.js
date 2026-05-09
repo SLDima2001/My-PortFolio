@@ -34,21 +34,25 @@ router.get('/', async (req, res) => {
 });
 
 // POST a new project (Protected)
-router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
+router.post('/', authMiddleware, upload.array('images', 10), async (req, res) => {
     const { title, description, tech, liveUrl, githubUrl, featured } = req.body;
     
-    // image can be a URL string or a file path from multer
-    let image = req.body.image;
-    if (req.file) {
+    let images = [];
+    if (req.body.images) {
+        images = typeof req.body.images === 'string' ? [req.body.images] : req.body.images;
+    }
+    
+    if (req.files && req.files.length > 0) {
         const apiUrl = process.env.API_URL || 'http://localhost:5555';
-        image = `${apiUrl}/uploads/projects/${req.file.filename}`;
+        const uploadedImages = req.files.map(file => `${apiUrl}/uploads/projects/${file.filename}`);
+        images = [...images, ...uploadedImages];
     }
 
     try {
         const newProject = new Project({
             title,
             description,
-            image,
+            images,
             tech: typeof tech === 'string' ? tech.split(',').map(t => t.trim()) : tech,
             liveUrl,
             githubUrl,
@@ -63,14 +67,22 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
 });
 
 // PUT (Update) a project (Protected)
-router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
+router.put('/:id', authMiddleware, upload.array('images', 10), async (req, res) => {
     try {
         let updateData = { ...req.body };
         
-        if (req.file) {
-            const apiUrl = process.env.API_URL || 'http://localhost:5555';
-            updateData.image = `${apiUrl}/uploads/projects/${req.file.filename}`;
+        let images = [];
+        if (req.body.images) {
+            images = typeof req.body.images === 'string' ? [req.body.images] : req.body.images;
         }
+
+        if (req.files && req.files.length > 0) {
+            const apiUrl = process.env.API_URL || 'http://localhost:5555';
+            const uploadedImages = req.files.map(file => `${apiUrl}/uploads/projects/${file.filename}`);
+            images = [...images, ...uploadedImages];
+        }
+        
+        updateData.images = images;
         
         if (updateData.tech && typeof updateData.tech === 'string') {
             updateData.tech = updateData.tech.split(',').map(t => t.trim());

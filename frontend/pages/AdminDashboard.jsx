@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaSignOutAlt, FaFolderOpen, FaEnvelope, FaTachometerAlt, FaChevronRight, FaDownload } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSignOutAlt, FaFolderOpen, FaEnvelope, FaTachometerAlt, FaChevronRight, FaDownload, FaImages, FaUser } from 'react-icons/fa';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('projects');
@@ -12,7 +12,10 @@ const AdminDashboard = () => {
     const [cvFile, setCvFile] = useState(null);
     const [cvInfo, setCvInfo] = useState(null);
     const [cvUploading, setCvUploading] = useState(false);
-    const [projectImageFile, setProjectImageFile] = useState(null);
+    const [projectImageFiles, setProjectImageFiles] = useState([]);
+    const [profileImages, setProfileImages] = useState([]);
+    const [profileImageFiles, setProfileImageFiles] = useState([]);
+    const [profileUploading, setProfileUploading] = useState(false);
     const navigate = useNavigate();
 
     // Form state for projects
@@ -54,6 +57,9 @@ const AdminDashboard = () => {
 
             const cvRes = await axios.get(`${apiUrl}/cv/latest`);
             setCvInfo(cvRes.data);
+
+            const profileRes = await axios.get(`${apiUrl}/profile`);
+            setProfileImages(profileRes.data.images || []);
         } catch (err) {
             console.error('Error fetching data:', err);
             if (err.response?.status === 401) {
@@ -86,10 +92,17 @@ const AdminDashboard = () => {
         formData.append('githubUrl', projectForm.githubUrl);
         formData.append('featured', projectForm.featured);
         
-        if (projectImageFile) {
-            formData.append('image', projectImageFile);
-        } else {
-            formData.append('image', projectForm.image);
+        if (projectImageFiles.length > 0) {
+            projectImageFiles.forEach(file => {
+                formData.append('images', file);
+            });
+        }
+        
+        // Also send existing images if editing
+        if (isEditing && projectForm.images) {
+            projectForm.images.forEach(img => {
+                formData.append('images', img);
+            });
         }
 
         const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
@@ -112,7 +125,7 @@ const AdminDashboard = () => {
         setProjectForm({
             title: project.title,
             description: project.description,
-            image: project.image,
+            images: project.images || [],
             tech: project.tech.join(', '),
             liveUrl: project.liveUrl,
             githubUrl: project.githubUrl,
@@ -180,6 +193,55 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleProfileUpload = async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        profileImageFiles.forEach(file => {
+            formData.append('images', file);
+        });
+
+        // In this simple implementation, we keep existing images
+        profileImages.forEach(img => {
+            formData.append('keepImages', img);
+        });
+
+        setProfileUploading(true);
+        const token = localStorage.getItem('token');
+        const headers = { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+        };
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+
+        try {
+            await axios.post(`${apiUrl}/profile/upload`, formData, { headers });
+            alert('Profile images updated!');
+            setProfileImageFiles([]);
+            fetchData();
+        } catch (err) {
+            alert('Upload failed');
+        } finally {
+            setProfileUploading(false);
+        }
+    };
+
+    const handleDeleteProfileImage = async (imgToDelete) => {
+        if (!window.confirm('Remove this image?')) return;
+        const newImages = profileImages.filter(img => img !== imgToDelete);
+        
+        const token = localStorage.getItem('token');
+        const headers = { Authorization: `Bearer ${token}` };
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+
+        try {
+            await axios.post(`${apiUrl}/profile/upload`, { keepImages: newImages }, { headers });
+            fetchData();
+        } catch (err) {
+            alert('Delete failed');
+        }
+    };
+
     const resetForm = () => {
         setProjectForm({
             title: '',
@@ -226,6 +288,12 @@ const AdminDashboard = () => {
                     >
                         <FaDownload /> CV Management
                     </button>
+                    <button 
+                        className={activeTab === 'profile' ? 'active' : ''} 
+                        onClick={() => setActiveTab('profile')}
+                    >
+                        <FaUser /> Profile Images
+                    </button>
                 </nav>
                 <button className="logout-btn" onClick={handleLogout}>
                     <FaSignOutAlt /> Sign Out
@@ -237,7 +305,8 @@ const AdminDashboard = () => {
                     <h2>
                         {activeTab === 'projects' ? 'Manage Portfolio Projects' : 
                          activeTab === 'messages' ? 'Contact Messages' : 
-                         'CV Management'}
+                         activeTab === 'cv' ? 'CV Management' : 
+                         'Profile Management'}
                     </h2>
                     <div className="breadcrumb">
                         <FaTachometerAlt /> Dashboard <FaChevronRight /> <span>{activeTab}</span>
@@ -285,19 +354,29 @@ const AdminDashboard = () => {
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Project Image (Upload File)</label>
+                                                <label>Project Images (Upload Multiple)</label>
                                                 <input 
                                                     type="file" 
-                                                    onChange={(e) => setProjectImageFile(e.target.files[0])} 
+                                                    multiple
+                                                    onChange={(e) => setProjectImageFiles(Array.from(e.target.files))} 
                                                     accept="image/*"
                                                 />
-                                                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>OR enter Image URL below</span>
-                                                <input 
-                                                    type="text" 
-                                                    value={projectForm.image} 
-                                                    onChange={(e) => setProjectForm({...projectForm, image: e.target.value})} 
-                                                    placeholder="https://example.com/image.jpg"
-                                                />
+                                                {isEditing && projectForm.images && (
+                                                    <div className="existing-images-preview" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                                                        {projectForm.images.map((img, idx) => (
+                                                            <div key={idx} style={{ position: 'relative' }}>
+                                                                <img src={img} alt="" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={() => setProjectForm({...projectForm, images: projectForm.images.filter((_, i) => i !== idx)})}
+                                                                    style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer' }}
+                                                                >
+                                                                    ×
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="form-group">
                                                 <label>Tech Stack (comma separated)</label>
@@ -423,6 +502,46 @@ const AdminDashboard = () => {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {activeTab === 'profile' && (
+                            <div className="profile-tab">
+                                <div className="form-card">
+                                    <h3>Manage Home Page Images</h3>
+                                    <p className="tab-desc" style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}>Upload your personal photos to be displayed on the home page hero section.</p>
+                                    <form onSubmit={handleProfileUpload} className="cv-upload-form" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                                        <div className="file-input-wrapper" style={{ flex: 1 }}>
+                                            <input 
+                                                type="file" 
+                                                multiple
+                                                onChange={(e) => setProfileImageFiles(Array.from(e.target.files))} 
+                                                className="file-input"
+                                                style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '8px', width: '100%', color: 'white' }}
+                                            />
+                                        </div>
+                                        <button type="submit" className="submit-btn" disabled={profileUploading} style={{ background: 'linear-gradient(135deg, #00d4ff 0%, #9333ea 100%)', border: 'none', padding: '12px 25px', borderRadius: '10px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
+                                            {profileUploading ? 'Uploading...' : <><FaPlus /> Add Images</>}
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div className="data-list">
+                                    <h3>Your Personal Gallery ({profileImages.length})</h3>
+                                    <div className="project-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
+                                        {profileImages.map((img, index) => (
+                                            <div key={index} className="dashboard-project-card">
+                                                <img src={img} alt="" style={{ height: '150px' }} />
+                                                <div className="card-details">
+                                                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Image {index + 1}</span>
+                                                    <div className="card-actions">
+                                                        <button onClick={() => handleDeleteProfileImage(img)} className="delete-action"><FaTrash /></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
