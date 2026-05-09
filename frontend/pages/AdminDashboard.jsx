@@ -46,7 +46,7 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
 
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             const projectsRes = await axios.get(`${apiUrl}/projects`);
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
             });
         }
 
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             if (isEditing) {
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
 
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             await axios.delete(`${apiUrl}/projects/${id}`, { headers });
@@ -156,7 +156,7 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
 
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             await axios.delete(`${apiUrl}/feedback/${id}`, { headers });
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
         };
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             await axios.post(`${apiUrl}/cv/upload`, formData, { headers });
@@ -212,7 +212,7 @@ const AdminDashboard = () => {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
         };
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             await axios.post(`${apiUrl}/profile/upload`, formData, { headers });
@@ -232,7 +232,7 @@ const AdminDashboard = () => {
         
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+        const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
             await axios.post(`${apiUrl}/profile/upload`, { keepImages: newImages }, { headers });

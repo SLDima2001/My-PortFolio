@@ -15,7 +15,7 @@ const AdminLogin = () => {
         setLoading(true);
         setError('');
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+            const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
             const response = await axios.post(`${apiUrl}/admin/login`, { username, password });
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('adminUser', response.data.username);
