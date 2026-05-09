@@ -80,8 +80,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            Authorization: `Bearer ${token}`
         };
         
         const formData = new FormData();
@@ -117,7 +116,8 @@ const AdminDashboard = () => {
             fetchData();
             alert(`Project ${isEditing ? 'updated' : 'added'} successfully!`);
         } catch (err) {
-            alert('Operation failed: ' + (err.response?.data?.message || err.message));
+            console.error('Project Submit Error:', err.response?.data || err.message);
+            alert('Operation failed: ' + (err.response?.data?.message || err.message) + (err.response?.data?.debug ? '\nDebug: ' + JSON.stringify(err.response.data.debug) : ''));
         }
     };
 
@@ -176,8 +176,7 @@ const AdminDashboard = () => {
         setCvUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            Authorization: `Bearer ${token}`
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -209,8 +208,7 @@ const AdminDashboard = () => {
         setProfileUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            Authorization: `Bearer ${token}`
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 

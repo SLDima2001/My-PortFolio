@@ -67,4 +67,25 @@ router.post('/init', async (req, res) => {
     }
 });
 
+// Verify Token
+router.get('/verify', (req, res) => {
+    // Check Authorization header (case-insensitive)
+    const authHeader = req.header('Authorization') || req.header('authorization');
+    const token = authHeader?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'No token, authorization denied', debug: 'Token missing from headers' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        res.json({ message: 'Token is valid', decoded, debug: { secret_used: JWT_SECRET ? 'Present' : 'Missing' } });
+    } catch (error) {
+        res.status(401).json({ 
+            message: 'Token is not valid',
+            debug: { error: error.message, secret_used: JWT_SECRET ? 'Present' : 'Missing' }
+        });
+    }
+});
+
 export default router;
