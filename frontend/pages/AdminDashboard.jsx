@@ -12,6 +12,7 @@ const AdminDashboard = () => {
     const [cvFile, setCvFile] = useState(null);
     const [cvInfo, setCvInfo] = useState(null);
     const [cvUploading, setCvUploading] = useState(false);
+    const [projectImageFile, setProjectImageFile] = useState(null);
     const navigate = useNavigate();
 
     // Form state for projects
@@ -72,19 +73,32 @@ const AdminDashboard = () => {
     const handleProjectSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-        const data = {
-            ...projectForm,
-            tech: typeof projectForm.tech === 'string' ? projectForm.tech.split(',').map(s => s.trim()) : projectForm.tech
+        const headers = { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
         };
+        
+        const formData = new FormData();
+        formData.append('title', projectForm.title);
+        formData.append('description', projectForm.description);
+        formData.append('tech', projectForm.tech);
+        formData.append('liveUrl', projectForm.liveUrl);
+        formData.append('githubUrl', projectForm.githubUrl);
+        formData.append('featured', projectForm.featured);
+        
+        if (projectImageFile) {
+            formData.append('image', projectImageFile);
+        } else {
+            formData.append('image', projectForm.image);
+        }
 
         const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
 
         try {
             if (isEditing) {
-                await axios.put(`${apiUrl}/projects/${currentProjectId}`, data, { headers });
+                await axios.put(`${apiUrl}/projects/${currentProjectId}`, formData, { headers });
             } else {
-                await axios.post(`${apiUrl}/projects`, data, { headers });
+                await axios.post(`${apiUrl}/projects`, formData, { headers });
             }
             resetForm();
             fetchData();
@@ -178,6 +192,7 @@ const AdminDashboard = () => {
         });
         setIsEditing(false);
         setCurrentProjectId(null);
+        setProjectImageFile(null);
     };
 
     return (
@@ -270,12 +285,18 @@ const AdminDashboard = () => {
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Image URL</label>
+                                                <label>Project Image (Upload File)</label>
+                                                <input 
+                                                    type="file" 
+                                                    onChange={(e) => setProjectImageFile(e.target.files[0])} 
+                                                    accept="image/*"
+                                                />
+                                                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>OR enter Image URL below</span>
                                                 <input 
                                                     type="text" 
                                                     value={projectForm.image} 
                                                     onChange={(e) => setProjectForm({...projectForm, image: e.target.value})} 
-                                                    required 
+                                                    placeholder="https://example.com/image.jpg"
                                                 />
                                             </div>
                                             <div className="form-group">

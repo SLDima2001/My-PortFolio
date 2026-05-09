@@ -1,8 +1,27 @@
 import express from 'express';
 import { Project } from '../models/Project.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
+
+// Multer configuration for project images
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = 'uploads/projects';
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        cb(null, `project-${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({ storage });
 
 // GET all projects (Public)
 router.get('/', async (req, res) => {
@@ -15,18 +34,25 @@ router.get('/', async (req, res) => {
 });
 
 // POST a new project (Protected)
-router.post('/', authMiddleware, async (req, res) => {
-    const { title, description, image, tech, liveUrl, githubUrl, featured } = req.body;
+router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
+    const { title, description, tech, liveUrl, githubUrl, featured } = req.body;
+    
+    // image can be a URL string or a file path from multer
+    let image = req.body.image;
+    if (req.file) {
+        const apiUrl = process.env.API_URL || 'http://localhost:5555';
+        image = `${apiUrl}/uploads/projects/${req.file.filename}`;
+    }
 
     try {
         const newProject = new Project({
             title,
             description,
             image,
-            tech,
+            tech: typeof tech === 'string' ? tech.split(',').map(t => t.trim()) : tech,
             liveUrl,
             githubUrl,
-            featured,
+            featured: featured === 'true' || featured === true,
         });
 
         const savedProject = await newProject.save();
@@ -37,11 +63,26 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // PUT (Update) a project (Protected)
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
     try {
+        let updateData = { ...req.body };
+        
+        if (req.file) {
+            const apiUrl = process.env.API_URL || 'http://localhost:5555';
+            updateData.image = `${apiUrl}/uploads/projects/${req.file.filename}`;
+        }
+        
+        if (updateData.tech && typeof updateData.tech === 'string') {
+            updateData.tech = updateData.tech.split(',').map(t => t.trim());
+        }
+        
+        if (updateData.featured) {
+            updateData.featured = updateData.featured === 'true' || updateData.featured === true;
+        }
+
         const updatedProject = await Project.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true }
         );
         res.json(updatedProject);
