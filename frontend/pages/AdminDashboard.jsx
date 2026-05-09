@@ -42,6 +42,41 @@ const compressImage = (file) => {
     });
 };
 
+const compressBase64 = (base64Str) => {
+    return new Promise((resolve) => {
+        if (!base64Str || !base64Str.startsWith('data:image/') || base64Str.length < 500000) {
+            return resolve(base64Str);
+        }
+        const img = new Image();
+        img.src = base64Str;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1200;
+            const MAX_HEIGHT = 1200;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+            } else {
+                if (height > MAX_HEIGHT) {
+                    width *= MAX_HEIGHT / height;
+                    height = MAX_HEIGHT;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = () => resolve(base64Str);
+    });
+};
+
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('projects');
     const [projects, setProjects] = useState([]);
@@ -152,10 +187,11 @@ const AdminDashboard = () => {
         }
         
         // Also send existing images if editing
-        if (isEditing && projectForm.images) {
-            projectForm.images.forEach(img => {
-                formData.append('images', img);
-            });
+        if (isEditing) {
+            for (let img of projectForm.images) {
+                const compressedImg = await compressBase64(img);
+                formData.append('images', compressedImg);
+            }
         }
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -278,9 +314,10 @@ const AdminDashboard = () => {
         }
 
         // In this simple implementation, we keep existing images
-        profileImages.forEach(img => {
-            formData.append('keepImages', img);
-        });
+        for (let img of profileImages) {
+            const compressedImg = await compressBase64(img);
+            formData.append('keepImages', compressedImg);
+        }
 
         setProfileUploading(true);
         const token = localStorage.getItem('token');
@@ -316,7 +353,11 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.post(`${apiUrl}/profile/upload?token=${token}`, { keepImages: newImages }, { headers });
+            const compressedNewImages = [];
+            for (let img of newImages) {
+                compressedNewImages.push(await compressBase64(img));
+            }
+            await axios.post(`${apiUrl}/profile/upload?token=${token}`, { keepImages: compressedNewImages }, { headers });
             fetchData();
         } catch (err) {
             alert('Delete failed');
