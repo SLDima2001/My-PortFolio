@@ -13,36 +13,29 @@ import path from 'path';
 
 const app = express();
 
-// CORS Configuration - MUST come before other middleware
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      'http://localhost:5173',
-      'http://localhost:5555',
-      'https://my-port-folio-onn7.vercel.app',
-      'https://dimalshapraveen.vercel.app'
-    ].filter(Boolean);
-    
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+// Manual CORS Middleware for Vercel Reliability
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'https://dimalshapraveen.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5555',
+    'https://my-port-folio-onn7.vercel.app'
+  ];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
 // Middleware for parsing request body
 app.use(express.json());
