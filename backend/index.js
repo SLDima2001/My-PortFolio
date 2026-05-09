@@ -14,7 +14,12 @@ const app = express();
 
 // CORS Configuration - MUST come before other middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5555', 'https://my-port-folio-onn7.vercel.app'],
+  origin: [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://localhost:5555',
+    'https://my-port-folio-onn7.vercel.app'
+  ].filter(Boolean),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
