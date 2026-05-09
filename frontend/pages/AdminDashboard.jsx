@@ -56,7 +56,7 @@ const AdminDashboard = () => {
             const projectsRes = await axios.get(`${apiUrl}/projects`);
             setProjects(projectsRes.data);
 
-            const feedbackRes = await axios.get(`${apiUrl}/feedback`, { headers });
+            const feedbackRes = await axios.get(`${apiUrl}/feedback?token=${token}`, { headers });
             setMessages(feedbackRes.data.data);
 
             const cvRes = await axios.get(`${apiUrl}/cv/latest`);
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            const url = isEditing ? `${apiUrl}/projects/${currentProjectId}` : `${apiUrl}/projects`;
+            const url = isEditing ? `${apiUrl}/projects/${currentProjectId}?token=${token}` : `${apiUrl}/projects?token=${token}`;
             const method = isEditing ? 'PUT' : 'POST';
 
             const response = await fetch(url, {
@@ -210,12 +210,14 @@ const AdminDashboard = () => {
         setCvUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token,
+            'xdima-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.post(`${apiUrl}/cv/upload`, formData, { headers });
+            await axios.post(`${apiUrl}/cv/upload?token=${token}`, formData, { headers });
             alert('CV uploaded successfully!');
             setCvFile(null);
             fetchData();
@@ -242,12 +244,14 @@ const AdminDashboard = () => {
         setProfileUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'x-auth-token': token,
+            'xdima-token': token
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.post(`${apiUrl}/profile/upload`, formData, { headers });
+            await axios.post(`${apiUrl}/profile/upload?token=${token}`, formData, { headers });
             alert('Profile images updated!');
             setProfileImageFiles([]);
             fetchData();
@@ -271,7 +275,7 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            await axios.post(`${apiUrl}/profile/upload`, { keepImages: newImages }, { headers });
+            await axios.post(`${apiUrl}/profile/upload?token=${token}`, { keepImages: newImages }, { headers });
             fetchData();
         } catch (err) {
             alert('Delete failed');
