@@ -6,8 +6,13 @@ const authMiddleware = (req, res, next) => {
     const authHeader = req.header('Authorization') || req.header('authorization');
     let token = authHeader?.split(' ')[1];
 
+    // Fallback to custom xdima-token if Vercel strips Authorization
     if (!token) {
-        console.log('Auth failed: No token provided in Authorization header');
+        token = req.header('xdima-token') || req.header('x-auth-token');
+    }
+
+    if (!token) {
+        console.log('Auth failed: No token provided in headers');
         return res.status(401).json({ message: 'No token, authorization denied', headers: req.headers });
     }
 
