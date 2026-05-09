@@ -18,7 +18,8 @@ const corsOptions = {
     process.env.FRONTEND_URL,
     'http://localhost:5173',
     'http://localhost:5555',
-    'https://my-port-folio-onn7.vercel.app'
+    'https://my-port-folio-onn7.vercel.app',
+    'https://dimalshapraveen.vercel.app'
   ].filter(Boolean),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
