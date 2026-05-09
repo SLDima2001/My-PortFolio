@@ -14,6 +14,10 @@ const cvSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        data: {
+            type: String,
+            required: true,
+        },
     },
     {
         timestamps: true,

@@ -45,9 +45,7 @@ const AdminDashboard = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -91,9 +89,7 @@ const AdminDashboard = () => {
         }
 
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
         console.log("Sending headers object:", headers);
         
@@ -121,17 +117,29 @@ const AdminDashboard = () => {
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
         try {
-            if (isEditing) {
-                await axios.put(`${apiUrl}/projects/${currentProjectId}`, formData, { headers });
-            } else {
-                await axios.post(`${apiUrl}/projects`, formData, { headers });
+            const url = isEditing ? `${apiUrl}/projects/${currentProjectId}` : `${apiUrl}/projects`;
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Upload failed with status ' + response.status);
             }
+
             resetForm();
             fetchData();
             alert(`Project ${isEditing ? 'updated' : 'added'} successfully!`);
         } catch (err) {
-            console.error('Project Submit Error:', err.response?.data || err.message);
-            alert('Operation failed: ' + (err.response?.data?.message || err.message) + (err.response?.data?.debug ? '\nDebug: ' + JSON.stringify(err.response.data.debug) : ''));
+            console.error('Project Submit Error:', err);
+            alert('Operation failed: ' + err.message);
         }
     };
 
@@ -154,9 +162,7 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -173,9 +179,7 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure you want to delete this message?')) return;
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -198,9 +202,7 @@ const AdminDashboard = () => {
         setCvUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 
@@ -232,9 +234,7 @@ const AdminDashboard = () => {
         setProfileUploading(true);
         const token = localStorage.getItem('token');
         const headers = { 
-            Authorization: `Bearer ${token}`,
-            'x-auth-token': token,
-            'xdima-token': token
+            Authorization: `Bearer ${token}`
         };
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
 

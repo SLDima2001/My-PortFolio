@@ -2,11 +2,12 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
 
 const authMiddleware = (req, res, next) => {
-    // Check custom header to bypass any Vercel proxy stripping
-    let token = req.header('xdima-token');
+    // Check Authorization header (case-insensitive)
+    const authHeader = req.header('Authorization') || req.header('authorization');
+    let token = authHeader?.split(' ')[1];
 
     if (!token) {
-        console.log('Auth failed: No token provided in xdima-token header');
+        console.log('Auth failed: No token provided in Authorization header');
         return res.status(401).json({ message: 'No token, authorization denied', headers: req.headers });
     }
 

@@ -7,20 +7,8 @@ import fs from 'fs';
 
 const router = express.Router();
 
-// Multer configuration for project images
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/projects';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `project-${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
-
+// Multer configuration for memory storage
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // GET all projects (Public)
@@ -43,8 +31,10 @@ router.post('/', authMiddleware, upload.array('images', 10), async (req, res) =>
     }
     
     if (req.files && req.files.length > 0) {
-        const apiUrl = process.env.API_URL || 'http://localhost:5555';
-        const uploadedImages = req.files.map(file => `${apiUrl}/uploads/projects/${file.filename}`);
+        const uploadedImages = req.files.map(file => {
+            const base64String = file.buffer.toString('base64');
+            return `data:${file.mimetype};base64,${base64String}`;
+        });
         images = [...images, ...uploadedImages];
     }
 
@@ -77,8 +67,10 @@ router.put('/:id', authMiddleware, upload.array('images', 10), async (req, res) 
         }
 
         if (req.files && req.files.length > 0) {
-            const apiUrl = process.env.API_URL || 'http://localhost:5555';
-            const uploadedImages = req.files.map(file => `${apiUrl}/uploads/projects/${file.filename}`);
+            const uploadedImages = req.files.map(file => {
+                const base64String = file.buffer.toString('base64');
+                return `data:${file.mimetype};base64,${base64String}`;
+            });
             images = [...images, ...uploadedImages];
         }
         

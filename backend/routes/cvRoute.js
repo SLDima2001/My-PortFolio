@@ -8,19 +8,7 @@ import fs from 'fs';
 const router = express.Router();
 
 // Multer configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/cv';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `cv-${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Route to upload CV (Protected)
@@ -34,9 +22,10 @@ router.post('/upload', authMiddleware, upload.single('cv'), async (req, res) => 
         await CV.deleteMany({});
 
         const newCV = new CV({
-            filename: req.file.filename,
+            filename: req.file.originalname,
             originalname: req.file.originalname,
             mimetype: req.file.mimetype,
+            data: req.file.buffer.toString('base64'),
         });
 
         await newCV.save();
@@ -67,12 +56,10 @@ router.get('/download', async (req, res) => {
             return res.status(404).json({ message: 'No CV found' });
         }
 
-        const filePath = path.join('uploads/cv', cv.filename);
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ message: 'File not found on server' });
-        }
-
-        res.download(filePath, cv.originalname);
+        const buffer = Buffer.from(cv.data, 'base64');
+        res.setHeader('Content-Type', cv.mimetype);
+        res.setHeader('Content-Disposition', `attachment; filename="${cv.originalname}"`);
+        res.send(buffer);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
