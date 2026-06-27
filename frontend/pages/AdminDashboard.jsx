@@ -87,6 +87,7 @@ const AdminDashboard = () => {
     const [cvInfo, setCvInfo] = useState(null);
     const [cvUploading, setCvUploading] = useState(false);
     const [projectImageFiles, setProjectImageFiles] = useState([]);
+    const [coverImageIndex, setCoverImageIndex] = useState(0); // index 0 = first image is default cover
     const [profileImages, setProfileImages] = useState([]);
     const [profileImageFiles, setProfileImageFiles] = useState([]);
     const [profileUploading, setProfileUploading] = useState(false);
@@ -179,19 +180,33 @@ const AdminDashboard = () => {
         formData.append('githubUrl', projectForm.githubUrl);
         formData.append('featured', projectForm.featured);
         
-        if (projectImageFiles.length > 0) {
-            for (let file of projectImageFiles) {
-                const compressedFile = await compressImage(file);
-                formData.append('images', compressedFile);
+        // Build combined image list: new files + existing images (when editing)
+        // coverImageIndex tells which item in the combined list is the cover
+        // We reorder so that the cover comes first (index 0 → backend uses as main image)
+        const newFilesCompressed = [];
+        for (let file of projectImageFiles) {
+            newFilesCompressed.push(await compressImage(file));
+        }
+
+        const existingImgsCompressed = [];
+        if (isEditing && projectForm.images) {
+            for (let img of projectForm.images) {
+                existingImgsCompressed.push(await compressBase64(img));
             }
         }
-        
-        // Also send existing images if editing
-        if (isEditing) {
-            for (let img of projectForm.images) {
-                const compressedImg = await compressBase64(img);
-                formData.append('images', compressedImg);
-            }
+
+        // Combined list in display order: new files first, then existing images
+        const combined = [...newFilesCompressed, ...existingImgsCompressed];
+
+        // Reorder so cover is first
+        const clampedCover = Math.min(coverImageIndex, combined.length - 1);
+        if (clampedCover > 0 && combined.length > 0) {
+            const [cover] = combined.splice(clampedCover, 1);
+            combined.unshift(cover);
+        }
+
+        for (let item of combined) {
+            formData.append('images', item);
         }
 
         const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
@@ -377,7 +392,58 @@ const AdminDashboard = () => {
         setIsEditing(false);
         setCurrentProjectId(null);
         setProjectImageFiles([]);
+        setCoverImageIndex(0);
     };
+
+    // ── Image reorder helpers ──────────────────────────────────────────────────
+    // "New files" section
+    const moveNewFile = (fromIdx, toIdx) => {
+        if (toIdx < 0 || toIdx >= projectImageFiles.length) return;
+        const arr = [...projectImageFiles];
+        const [item] = arr.splice(fromIdx, 1);
+        arr.splice(toIdx, 0, item);
+        setProjectImageFiles(arr);
+        // Keep cover tracking correct after reorder
+        if (coverImageIndex === fromIdx) setCoverImageIndex(toIdx);
+        else if (coverImageIndex === toIdx) setCoverImageIndex(fromIdx);
+    };
+
+    const removeNewFile = (idx) => {
+        const arr = projectImageFiles.filter((_, i) => i !== idx);
+        setProjectImageFiles(arr);
+        if (coverImageIndex >= arr.length) setCoverImageIndex(Math.max(0, arr.length - 1));
+    };
+
+    // "Existing images" section (only when editing)
+    const moveExistingImg = (fromIdx, toIdx) => {
+        if (!projectForm.images) return;
+        if (toIdx < 0 || toIdx >= projectForm.images.length) return;
+        const arr = [...projectForm.images];
+        const [item] = arr.splice(fromIdx, 1);
+        arr.splice(toIdx, 0, item);
+        setProjectForm({ ...projectForm, images: arr });
+    };
+
+    const removeExistingImg = (idx) => {
+        setProjectForm({ ...projectForm, images: projectForm.images.filter((_, i) => i !== idx) });
+    };
+
+    // Shared style generator for the tiny image control buttons
+    const imgCtrlBtn = (disabled = false, active = false, danger = false) => ({
+        background: danger ? 'rgba(255,60,60,0.2)' : active ? 'rgba(255,200,0,0.25)' : 'rgba(255,255,255,0.1)',
+        border: 'none',
+        color: danger ? '#ff6b6b' : active ? 'gold' : disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)',
+        borderRadius: '5px',
+        width: '20px',
+        height: '20px',
+        fontSize: '10px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        opacity: disabled ? 0.4 : 1,
+    });
 
     return (
         <div className="admin-dashboard">
@@ -474,32 +540,118 @@ const AdminDashboard = () => {
                                                 required 
                                             />
                                         </div>
-                                        <div className="form-row">
-                                            <div className="form-group">
-                                                <label>Project Images (Upload Multiple)</label>
-                                                <input 
-                                                    type="file" 
-                                                    multiple
-                                                    onChange={(e) => setProjectImageFiles(Array.from(e.target.files))} 
-                                                    accept="image/*"
-                                                />
-                                                {isEditing && projectForm.images && (
-                                                    <div className="existing-images-preview" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                                        <div className="form-group">
+                                            <label>Project Images (Upload Multiple)</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                                <label style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                                    background: 'rgba(0,212,255,0.12)', border: '1px dashed rgba(0,212,255,0.4)',
+                                                    borderRadius: '10px', padding: '10px 18px', cursor: 'pointer', color: '#00d4ff',
+                                                    fontWeight: 600, fontSize: '14px', whiteSpace: 'nowrap'
+                                                }}>
+                                                    ＋ Add Images
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        accept="image/*"
+                                                        style={{ display: 'none' }}
+                                                        onChange={(e) => {
+                                                            const picked = Array.from(e.target.files);
+                                                            setProjectImageFiles(prev => [...prev, ...picked]);
+                                                            e.target.value = '';
+                                                        }}
+                                                    />
+                                                </label>
+                                                {projectImageFiles.length > 0 && (
+                                                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                                                        {projectImageFiles.length} new image{projectImageFiles.length > 1 ? 's' : ''} selected
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* ── New-file previews ── */}
+                                            {projectImageFiles.length > 0 && (
+                                                <div style={{ marginTop: '14px' }}>
+                                                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>
+                                                        New images — click ★ to set as cover, use ◀ ▶ to reorder
+                                                    </p>
+                                                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                        {projectImageFiles.map((file, idx) => {
+                                                            const isCover = coverImageIndex === idx;
+                                                            const previewUrl = URL.createObjectURL(file);
+                                                            return (
+                                                                <div key={idx} style={{
+                                                                    position: 'relative', width: '90px',
+                                                                    border: isCover ? '2px solid gold' : '2px solid transparent',
+                                                                    borderRadius: '10px', overflow: 'visible'
+                                                                }}>
+                                                                    <img src={previewUrl} alt=""
+                                                                        style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '8px', display: 'block' }} />
+                                                                    {isCover && (
+                                                                        <span style={{
+                                                                            position: 'absolute', top: '-9px', left: '50%', transform: 'translateX(-50%)',
+                                                                            background: 'gold', color: '#000', fontSize: '10px', fontWeight: 800,
+                                                                            borderRadius: '20px', padding: '1px 6px', whiteSpace: 'nowrap'
+                                                                        }}>★ Cover</span>
+                                                                    )}
+                                                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '3px', marginTop: '5px' }}>
+                                                                        <button type="button" title="Move left"
+                                                                            onClick={() => moveNewFile(idx, idx - 1)}
+                                                                            disabled={idx === 0}
+                                                                            style={imgCtrlBtn(idx === 0)}>◀</button>
+                                                                        <button type="button" title="Set as cover"
+                                                                            onClick={() => setCoverImageIndex(idx)}
+                                                                            style={imgCtrlBtn(false, isCover)}>★</button>
+                                                                        <button type="button" title="Move right"
+                                                                            onClick={() => moveNewFile(idx, idx + 1)}
+                                                                            disabled={idx === projectImageFiles.length - 1}
+                                                                            style={imgCtrlBtn(idx === projectImageFiles.length - 1)}>▶</button>
+                                                                        <button type="button" title="Remove"
+                                                                            onClick={() => removeNewFile(idx)}
+                                                                            style={imgCtrlBtn(false, false, true)}>✕</button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* ── Existing-image previews (edit mode) ── */}
+                                            {isEditing && projectForm.images && projectForm.images.length > 0 && (
+                                                <div style={{ marginTop: '14px' }}>
+                                                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>
+                                                        Saved images — use ◀ ▶ to reorder, ✕ to remove
+                                                    </p>
+                                                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                                         {projectForm.images.map((img, idx) => (
-                                                            <div key={idx} style={{ position: 'relative' }}>
-                                                                <img src={img} alt="" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
-                                                                <button 
-                                                                    type="button" 
-                                                                    onClick={() => setProjectForm({...projectForm, images: projectForm.images.filter((_, i) => i !== idx)})}
-                                                                    style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer' }}
-                                                                >
-                                                                    ×
-                                                                </button>
+                                                            <div key={idx} style={{
+                                                                position: 'relative', width: '90px',
+                                                                border: '2px solid rgba(255,255,255,0.1)',
+                                                                borderRadius: '10px', overflow: 'visible'
+                                                            }}>
+                                                                <img src={img} alt=""
+                                                                    style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '8px', display: 'block' }} />
+                                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '3px', marginTop: '5px' }}>
+                                                                    <button type="button" title="Move left"
+                                                                        onClick={() => moveExistingImg(idx, idx - 1)}
+                                                                        disabled={idx === 0}
+                                                                        style={imgCtrlBtn(idx === 0)}>◀</button>
+                                                                    <button type="button" title="Move right"
+                                                                        onClick={() => moveExistingImg(idx, idx + 1)}
+                                                                        disabled={idx === projectForm.images.length - 1}
+                                                                        style={imgCtrlBtn(idx === projectForm.images.length - 1)}>▶</button>
+                                                                    <button type="button" title="Remove"
+                                                                        onClick={() => removeExistingImg(idx)}
+                                                                        style={imgCtrlBtn(false, false, true)}>✕</button>
+                                                                </div>
                                                             </div>
                                                         ))}
                                                     </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-row">
                                             <div className="form-group">
                                                 <label>Tech Stack (comma separated)</label>
                                                 <input 
