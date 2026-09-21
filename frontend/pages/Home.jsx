@@ -8,6 +8,11 @@ import {
   FaImages, FaChevronRight
 } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiTailwindcss, SiJavascript, SiTypescript, SiNextdotjs, SiPython } from "react-icons/si";
+import Preloader3D from "../src/components/Preloader3D";
+import SceneBackground from "../src/components/SceneBackground";
+import MagneticButton from "../src/components/MagneticButton";
+import ParallaxLayer from "../src/components/ParallaxLayer";
+import ScrollVelocity from "../src/components/ScrollVelocity";
 
 /* ─────────────────────────────────────────────
    CANVAS PARTICLE BACKGROUND
@@ -214,6 +219,7 @@ function Portfolio() {
   const cursorRingRef = useRef(null);
   const [profileImages, setProfileImages] = useState([]);
   const [lightbox, setLightbox] = useState({ isOpen: false, images: [], currentIndex: 0 });
+  const [preloaderDone, setPreloaderDone] = useState(false);
 
   /* ── Existing event listeners (unchanged) ── */
   useEffect(() => {
@@ -411,8 +417,11 @@ function Portfolio() {
         </>
       )}
 
-      {/* ─── Particle Canvas Background ─── */}
-      <ParticleCanvas />
+      {/* ─── Creative 3D Preloader Experience ─── */}
+      <Preloader3D onComplete={() => setPreloaderDone(true)} />
+
+      {/* ─── Immersive 3D WebGL Background Scene ─── */}
+      <SceneBackground />
 
       {/* ─── Gradient Orbs ─── */}
       <div className="animated-background" aria-hidden="true">
@@ -518,22 +527,26 @@ function Portfolio() {
             </motion.p>
 
             <motion.div className="cta-buttons" variants={heroItem}>
-              <motion.button
-                className="btn-primary"
-                onClick={handleDownloadCV}
-                whileHover={{ scale: 1.04, y: -3 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <FaDownload /> Download CV
-              </motion.button>
-              <motion.button
-                className="btn-secondary"
-                onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-                whileHover={{ scale: 1.04, y: -3 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                Get In Touch
-              </motion.button>
+              <MagneticButton strength={0.25}>
+                <motion.button
+                  className="btn-primary"
+                  onClick={handleDownloadCV}
+                  whileHover={{ scale: 1.04, y: -3 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <FaDownload /> Download CV
+                </motion.button>
+              </MagneticButton>
+              <MagneticButton strength={0.25}>
+                <motion.button
+                  className="btn-secondary"
+                  onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                  whileHover={{ scale: 1.04, y: -3 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Get In Touch
+                </motion.button>
+              </MagneticButton>
             </motion.div>
 
             <motion.div className="stats-grid" variants={heroItem}>
@@ -550,12 +563,13 @@ function Portfolio() {
             </motion.div>
           </motion.div>
 
-          <motion.div
-            className="hero-image-container"
-            initial={{ opacity: 0, scale: 0.85, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <ParallaxLayer depth={0.18} className="hero-parallax-wrapper">
+            <motion.div
+              className="hero-image-container"
+              initial={{ opacity: 0, scale: 0.85, rotate: -4 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
             <div
               className="image-wrapper"
               onClick={() => profileImages.length > 0 && openLightbox(profileImages)}
@@ -574,6 +588,7 @@ function Portfolio() {
               )}
             </div>
           </motion.div>
+          </ParallaxLayer>
         </section>
 
         {/* ════════════════════════════════════
@@ -677,10 +692,11 @@ function Portfolio() {
             </p>
           </Reveal>
 
+          <ScrollVelocity maxSkew={2.5}>
           <div className="projects-grid">
             {projects.map((project, index) => (
               <Reveal key={index} delay={index * 0.1}>
-                <TiltCard className="project-card" intensity={6}>
+                <TiltCard className="project-card glass-depth-card" intensity={6}>
                   <div className="project-card-border-glow" />
                   <div
                     className="project-image-wrapper"
@@ -721,6 +737,7 @@ function Portfolio() {
               </Reveal>
             ))}
           </div>
+          </ScrollVelocity>
         </section>
 
         {/* ════════════════════════════════════
@@ -782,14 +799,18 @@ function Portfolio() {
                   className="form-input form-textarea"
                   required
                 />
-                <motion.button
-                  type="submit"
-                  className="btn-submit"
-                  whileHover={{ scale: 1.04, y: -3 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  Send Message <FaArrowRight />
-                </motion.button>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                  <MagneticButton strength={0.3}>
+                    <motion.button
+                      type="submit"
+                      className="btn-submit"
+                      whileHover={{ scale: 1.04, y: -3 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Send Message <FaArrowRight />
+                    </motion.button>
+                  </MagneticButton>
+                </div>
               </form>
             </div>
           </Reveal>
@@ -803,29 +824,32 @@ function Portfolio() {
             { href: "https://github.com/SLDima2001", icon: <FaGithub />, label: "GitHub" },
             { href: "https://www.linkedin.com/in/dimalsha-praveen-kariyawasam/", icon: <FaLinkedin />, label: "LinkedIn" },
           ].map(({ href, icon, label }) => (
-            <motion.a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
+            <MagneticButton key={label} strength={0.35}>
+              <motion.a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                whileHover={{ y: -6, scale: 1.1 }}
+                whileTap={{ scale: 0.93 }}
+                aria-label={label}
+              >
+                {icon}
+              </motion.a>
+            </MagneticButton>
+          ))}
+          <MagneticButton strength={0.35}>
+            <motion.div
+              onClick={handleCopy}
               className="social-icon"
               whileHover={{ y: -6, scale: 1.1 }}
               whileTap={{ scale: 0.93 }}
-              aria-label={label}
+              style={{ cursor: 'pointer' }}
+              aria-label="Copy email"
             >
-              {icon}
-            </motion.a>
-          ))}
-          <motion.div
-            onClick={handleCopy}
-            className="social-icon"
-            whileHover={{ y: -6, scale: 1.1 }}
-            whileTap={{ scale: 0.93 }}
-            style={{ cursor: 'pointer' }}
-            aria-label="Copy email"
-          >
-            <FaEnvelope />
-          </motion.div>
+              <FaEnvelope />
+            </motion.div>
+          </MagneticButton>
         </div>
         <p className="footer-text">
           <Link to="/admin-login" style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}>

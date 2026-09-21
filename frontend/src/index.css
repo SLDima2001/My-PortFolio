@@ -63,4 +63,94 @@ body {
 ::selection {
   background: var(--cyan-dim);
   color: var(--cyan);
-}
+}
+
+/* ─── 3D Preloader Fallback & Overlay Styles ─── */
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #070710;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  gap: 1.25rem;
+}
+
+.css-spinner-ring {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 212, 255, 0.15);
+  border-top-color: var(--cyan);
+  border-right-color: var(--purple);
+  animation: preloader-spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
+}
+
+@keyframes preloader-spin {
+  0% { transform: rotate(0deg) scale(0.95); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(0.95); }
+}
+
+.preloader-progress-text {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #00d4ff 0%, #ffffff 50%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+
+.preloader-label {
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.preloader-skip {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: rgba(0, 212, 255, 0.6);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  transition: all 0.2s ease;
+}
+.preloader-skip:hover {
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+/* ─── Glowing Neon Text Highlights ─── */
+.text-glow-cyan {
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.6), 0 0 40px rgba(0, 212, 255, 0.25);
+}
+.text-glow-purple {
+  text-shadow: 0 0 20px rgba(147, 51, 234, 0.6), 0 0 40px rgba(147, 51, 234, 0.25);
+}
+
+/* ─── Glassmorphism Card 3D Depth ─── */
+.glass-depth-card {
+  background: rgba(13, 13, 26, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.glass-depth-card:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 12px 40px 0 rgba(0, 212, 255, 0.15);
+}
+
