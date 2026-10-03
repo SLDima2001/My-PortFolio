@@ -201,6 +201,109 @@ function Reveal({ children, delay = 0, y = 40, className }) {
 }
 
 /* ─────────────────────────────────────────────
+   DEFAULT PROJECT DATA (0ms Initial Render)
+───────────────────────────────────────────── */
+const DEFAULT_PROJECTS = [
+  {
+    _id: "6a65f740831d4c30fd8f352d",
+    title: "Jayantha Engineering - Inventory & Dedicated Invoice Management System",
+    description: "A custom, full-stack enterprise web application built for Jayantha Engineering & Fabricators Pvt Ltd to streamline stock tracking and automated invoice generation.",
+    images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
+    tech: ["React", "Node.js", "MongoDB", "Express", "Tailwind CSS"],
+    liveUrl: "#",
+    githubUrl: "#",
+    featured: true
+  },
+  {
+    _id: "6a65f740831d4c30fd8f352e",
+    title: "Dynamic Multi-Tenant Invoice Engine & Inventory Management System",
+    description: "Multi-tenant inventory management system with real-time stock monitoring, custom PDF invoice generation, and analytical dashboards.",
+    images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/WebApp.png?raw=true"],
+    tech: ["React", "Node.js", "Express", "MongoDB"],
+    liveUrl: "#",
+    githubUrl: "#",
+    featured: true
+  },
+  {
+    _id: "6a65f740831d4c30fd8f352f",
+    title: "Sinhala Learning App",
+    description: "Interactive mobile & web application designed to teach Sinhala language fundamentals through gamified lessons and interactive quizzes.",
+    images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/MobileApp.png?raw=true"],
+    tech: ["React Native", "React", "Node.js", "MongoDB"],
+    liveUrl: "#",
+    githubUrl: "#",
+    featured: true
+  },
+  {
+    _id: "6a65f740831d4c30fd8f3530",
+    title: "Lahiru Tours – Destination Management Web Platform",
+    description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
+    images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
+    tech: ["React", "Node.js", "MongoDB", "Express"],
+    liveUrl: "https://lahirutours.co.uk/",
+    githubUrl: "#",
+    featured: true
+  }
+];
+
+/* ─────────────────────────────────────────────
+   OPTIMIZED PROJECT IMAGE DECODER
+───────────────────────────────────────────── */
+function ProjectImage({ src, alt, className }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const [objectUrl, setObjectUrl] = useState(null);
+
+  useEffect(() => {
+    if (!src) return;
+    if (typeof src === 'string' && src.startsWith('data:image/')) {
+      try {
+        const parts = src.split(',');
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const url = URL.createObjectURL(blob);
+        setObjectUrl(url);
+        return () => URL.revokeObjectURL(url);
+      } catch (e) {
+        setObjectUrl(src);
+      }
+    } else {
+      setObjectUrl(src);
+    }
+  }, [src]);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+      {!loaded && !error && (
+        <div className="shimmer" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.05)', zIndex: 1 }} />
+      )}
+      <img
+        src={objectUrl || src}
+        alt={alt}
+        className={className}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => { setError(true); setLoaded(true); }}
+        style={{
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.4s ease-out',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    MAIN PORTFOLIO COMPONENT
 ───────────────────────────────────────────── */
 function Portfolio() {
@@ -344,12 +447,14 @@ function Portfolio() {
   const [projects, setProjects] = useState(() => {
     try {
       const cached = sessionStorage.getItem('portfolio_projects_cache');
-      return cached ? JSON.parse(cached) : [];
-    } catch (e) {
-      return [];
-    }
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_PROJECTS;
   });
-  const [loadingProjects, setLoadingProjects] = useState(() => projects.length === 0);
+  const [loadingProjects, setLoadingProjects] = useState(false);
 
   /* ── Optimized Data Fetching with Cache & Summary Mode ── */
   useEffect(() => {
@@ -359,17 +464,7 @@ function Portfolio() {
         const pResponse = await fetch(`${apiUrl}/projects?summary=true`);
         if (pResponse.ok) {
           const pData = await pResponse.json();
-          const finalProjects = pData.length > 0 ? pData : [
-            {
-              title: "Lahiru Tours",
-              description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
-              images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
-              tech: ["React", "Node.js", "MongoDB", "Express"],
-              liveUrl: "https://lahirutours.co.uk/",
-              githubUrl: "#",
-              featured: true
-            }
-          ];
+          const finalProjects = pData.length > 0 ? pData : DEFAULT_PROJECTS;
           setProjects(finalProjects);
           try {
             sessionStorage.setItem('portfolio_projects_cache', JSON.stringify(finalProjects));
@@ -760,12 +855,10 @@ function Portfolio() {
                         onClick={() => project.images && project.images.length > 0 && openLightbox(project.images, 0, project._id)}
                         style={{ cursor: 'pointer' }}
                       >
-                        <img
+                        <ProjectImage
                           src={project.images && project.images.length > 0 ? project.images[0] : (project.image || '')}
                           alt={project.title}
                           className="project-image"
-                          loading="lazy"
-                          decoding="async"
                         />
                         <div className="project-overlay">
                           <div className="project-links" onClick={(e) => e.stopPropagation()}>
