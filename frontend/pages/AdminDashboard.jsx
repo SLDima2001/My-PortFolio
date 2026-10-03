@@ -693,18 +693,44 @@ const AdminDashboard = () => {
                                 <div className="data-list">
                                     <h3>Existing Projects ({projects.length})</h3>
                                     <div className="project-grid">
-                                        {projects.map(project => (
-                                            <div key={project._id} className="dashboard-project-card">
-                                                <img src={project.image} alt={project.title} />
-                                                <div className="card-details">
-                                                    <h4>{project.title}</h4>
-                                                    <div className="card-actions">
-                                                        <button onClick={() => handleEditProject(project)} className="edit-action"><FaEdit /></button>
-                                                        <button onClick={() => handleDeleteProject(project._id)} className="delete-action"><FaTrash /></button>
+                                        {projects.map(project => {
+                                            const coverImg = project.images && project.images.length > 0 ? project.images[0] : (project.image || '');
+                                            return (
+                                                <div key={project._id} className="dashboard-project-card">
+                                                    <div style={{ width: '100%', height: '140px', overflow: 'hidden', borderRadius: '12px 12px 0 0', position: 'relative', background: 'rgba(255,255,255,0.03)' }}>
+                                                        {coverImg ? (
+                                                            <img 
+                                                                src={coverImg} 
+                                                                alt={project.title} 
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                                            />
+                                                        ) : (
+                                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>
+                                                                No Image
+                                                            </div>
+                                                        )}
+                                                        {project.images && project.images.length > 1 && (
+                                                            <span style={{
+                                                                position: 'absolute', bottom: '8px', right: '8px',
+                                                                background: 'rgba(7,7,16,0.85)', color: '#00d4ff',
+                                                                padding: '3px 9px', borderRadius: '12px', fontSize: '11px',
+                                                                fontWeight: 700, border: '1px solid rgba(0,212,255,0.3)',
+                                                                backdropFilter: 'blur(4px)'
+                                                            }}>
+                                                                📷 {project.images.length}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="card-details">
+                                                        <h4>{project.title}</h4>
+                                                        <div className="card-actions">
+                                                            <button onClick={() => handleEditProject(project)} className="edit-action" title="Edit"><FaEdit /></button>
+                                                            <button onClick={() => handleDeleteProject(project._id)} className="delete-action" title="Delete"><FaTrash /></button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
