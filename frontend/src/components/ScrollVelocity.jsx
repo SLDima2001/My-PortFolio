@@ -1,34 +1,31 @@
-import React, { useRef } from 'react';
-import { motion, useSpring } from 'framer-motion';
-import { useScrollVelocity } from '../hooks/useScrollVelocity';
+import React from 'react';
+import { motion, useScroll, useVelocity, useTransform, useSpring } from 'framer-motion';
 
 /**
  * ScrollVelocity — wraps children and applies a subtle skewY transform
- * that scales with scroll speed, creating a momentum/"rubber band" feel.
- * 
- * Props:
- *   maxSkew   {number}  maximum skew in degrees (default 3)
- *   children  {node}
- *   style     {object}
- *   className {string}
+ * that scales with scroll speed using hardware-accelerated Framer Motion values.
+ * Zero React re-renders during scroll!
  */
-export default function ScrollVelocity({ children, maxSkew = 3, style, className }) {
-  const velocity = useScrollVelocity(0.88);
+export default function ScrollVelocity({ children, maxSkew = 2.5, style, className }) {
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
 
-  // Spring-smooth the skew value
-  const skewSpring = useSpring(0, { stiffness: 80, damping: 20, mass: 0.5 });
+  // Smooth the scroll velocity
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 50,
+    stiffness: 300,
+    mass: 0.5
+  });
 
-  // Update spring target based on velocity
-  React.useEffect(() => {
-    skewSpring.set(velocity * maxSkew);
-  }, [velocity, maxSkew, skewSpring]);
+  // Map scroll velocity (px/s) to skew angle in degrees
+  const skewY = useTransform(smoothVelocity, [-3000, 0, 3000], [-maxSkew, 0, maxSkew]);
 
   return (
     <motion.div
       className={className}
       style={{
         ...style,
-        skewY: skewSpring,
+        skewY,
         willChange: 'transform',
       }}
     >

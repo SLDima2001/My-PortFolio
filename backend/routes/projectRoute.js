@@ -20,8 +20,29 @@ const upload = multer({
 // GET all projects (Public)
 router.get('/', async (req, res) => {
     try {
-        const projects = await Project.find().sort({ createdAt: -1 });
+        const { summary } = req.query;
+        let projects = await Project.find().sort({ createdAt: -1 }).lean();
+        
+        if (summary === 'true') {
+            projects = projects.map(p => ({
+                ...p,
+                images: p.images && p.images.length > 0 ? [p.images[0]] : [],
+                imageCount: p.images ? p.images.length : 0
+            }));
+        }
+        
         res.json(projects);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET single project by ID (Public)
+router.get('/:id', async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+        res.json(project);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

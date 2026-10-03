@@ -341,39 +341,77 @@ function Portfolio() {
     { name: "Figma", icon: <FaFigma />, color: "#F24E1E" },
   ];
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('portfolio_projects_cache');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [loadingProjects, setLoadingProjects] = useState(() => projects.length === 0);
 
-  /* ── Data Fetching (unchanged) ── */
+  /* ── Optimized Data Fetching with Cache & Summary Mode ── */
   useEffect(() => {
     const fetchData = async () => {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app';
+      const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
       try {
-        const pResponse = await fetch(`${apiUrl}/projects`);
-        const pData = await pResponse.json();
-        setProjects(pData.length > 0 ? pData : [
-          {
-            title: "Lahiru Tours",
-            description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
-            images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
-            tech: ["React", "Node.js", "MongoDB", "Express"],
-            liveUrl: "https://lahirutours.co.uk/",
-            githubUrl: "#",
-            featured: true
-          }
-        ]);
-        const profResponse = await fetch(`${apiUrl}/profile`);
-        const profData = await profResponse.json();
-        setProfileImages(profData.images || []);
+        const pResponse = await fetch(`${apiUrl}/projects?summary=true`);
+        if (pResponse.ok) {
+          const pData = await pResponse.json();
+          const finalProjects = pData.length > 0 ? pData : [
+            {
+              title: "Lahiru Tours",
+              description: "A comprehensive tour booking platform featuring tailor-made travel experiences with real-time booking system, payment integration, and dynamic itinerary management.",
+              images: ["https://github.com/SLDima2001/My-PortFolio/blob/main/frontend/photo123.png?raw=true"],
+              tech: ["React", "Node.js", "MongoDB", "Express"],
+              liveUrl: "https://lahirutours.co.uk/",
+              githubUrl: "#",
+              featured: true
+            }
+          ];
+          setProjects(finalProjects);
+          try {
+            sessionStorage.setItem('portfolio_projects_cache', JSON.stringify(finalProjects));
+          } catch (e) {}
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoadingProjects(false);
+      }
+
+      try {
+        const profResponse = await fetch(`${apiUrl}/profile`);
+        if (profResponse.ok) {
+          const profData = await profResponse.json();
+          setProfileImages(profData.images || []);
+        }
+      } catch (e) {
+        console.error('Error fetching profile:', e);
       }
     };
     fetchData();
   }, []);
 
-  /* ── Lightbox (unchanged) ── */
-  const openLightbox = (images, index = 0) => {
-    setLightbox({ isOpen: true, images, currentIndex: index });
+  /* ── Lightbox with On-Demand Gallery Image Loading ── */
+  const openLightbox = async (images, index = 0, projectId = null) => {
+    let imagesToUse = images || [];
+    if (projectId && imagesToUse.length <= 1) {
+      const apiUrl = (import.meta.env.VITE_API_URL || 'https://my-port-folio-onn7.vercel.app').replace(/\/$/, '');
+      try {
+        const res = await fetch(`${apiUrl}/projects/${projectId}`);
+        if (res.ok) {
+          const fullProj = await res.json();
+          if (fullProj.images && fullProj.images.length > 0) {
+            imagesToUse = fullProj.images;
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching full project details for lightbox:", err);
+      }
+    }
+    setLightbox({ isOpen: true, images: imagesToUse, currentIndex: index });
     document.body.style.overflow = 'hidden';
   };
   const closeLightbox = () => {
@@ -693,50 +731,76 @@ function Portfolio() {
           </Reveal>
 
           <ScrollVelocity maxSkew={2.5}>
-          <div className="projects-grid">
-            {projects.map((project, index) => (
-              <Reveal key={index} delay={index * 0.1}>
-                <TiltCard className="project-card glass-depth-card" intensity={6}>
-                  <div className="project-card-border-glow" />
-                  <div
-                    className="project-image-wrapper"
-                    onClick={() => project.images && project.images.length > 0 && openLightbox(project.images)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <img
-                      src={project.images && project.images.length > 0 ? project.images[0] : project.image}
-                      alt={project.title}
-                      className="project-image"
-                    />
-                    <div className="project-overlay">
-                      <div className="project-links" onClick={(e) => e.stopPropagation()}>
-                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="project-link">
-                          <FaExternalLinkAlt /> Live Demo
-                        </a>
-                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="project-link">
-                          <FaCode /> View Code
-                        </a>
+            {loadingProjects && projects.length === 0 ? (
+              <div className="projects-grid">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="project-card glass-depth-card skeleton-card">
+                    <div className="skeleton-image-wrapper shimmer" />
+                    <div className="project-content" style={{ padding: '24px' }}>
+                      <div className="skeleton-line skeleton-title shimmer" />
+                      <div className="skeleton-line skeleton-text shimmer" />
+                      <div className="skeleton-line skeleton-text-short shimmer" />
+                      <div className="skeleton-badges">
+                        <div className="skeleton-badge shimmer" />
+                        <div className="skeleton-badge shimmer" />
+                        <div className="skeleton-badge shimmer" />
                       </div>
-                      {project.images && project.images.length > 1 && (
-                        <div className="gallery-indicator">
-                          <FaImages /> View Gallery ({project.images.length})
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="projects-grid">
+                {projects.map((project, index) => (
+                  <Reveal key={project._id || index} delay={index * 0.08}>
+                    <TiltCard className="project-card glass-depth-card" intensity={6}>
+                      <div className="project-card-border-glow" />
+                      <div
+                        className="project-image-wrapper"
+                        onClick={() => project.images && project.images.length > 0 && openLightbox(project.images, 0, project._id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <img
+                          src={project.images && project.images.length > 0 ? project.images[0] : (project.image || '')}
+                          alt={project.title}
+                          className="project-image"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <div className="project-overlay">
+                          <div className="project-links" onClick={(e) => e.stopPropagation()}>
+                            {project.liveUrl && project.liveUrl !== '#' && (
+                              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="project-link">
+                                <FaExternalLinkAlt /> Live Demo
+                              </a>
+                            )}
+                            {project.githubUrl && project.githubUrl !== '#' && (
+                              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="project-link">
+                                <FaCode /> View Code
+                              </a>
+                            )}
+                          </div>
+                          {(project.imageCount > 1 || (project.images && project.images.length > 1)) && (
+                            <div className="gallery-indicator">
+                              <FaImages /> View Gallery ({project.imageCount || project.images.length})
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="project-content">
-                    <h3 className="project-title">{project.title}</h3>
-                    <p className="project-description">{project.description}</p>
-                    <div className="project-tech">
-                      {project.tech.map((tech, techIndex) => (
-                        <span key={techIndex} className="tech-badge">{tech}</span>
-                      ))}
-                    </div>
-                  </div>
-                </TiltCard>
-              </Reveal>
-            ))}
-          </div>
+                      </div>
+                      <div className="project-content">
+                        <h3 className="project-title">{project.title}</h3>
+                        <p className="project-description">{project.description}</p>
+                        <div className="project-tech">
+                          {Array.isArray(project.tech) && project.tech.map((tech, techIndex) => (
+                            <span key={techIndex} className="tech-badge">{tech}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </TiltCard>
+                  </Reveal>
+                ))}
+              </div>
+            )}
           </ScrollVelocity>
         </section>
 
@@ -1516,8 +1580,51 @@ function Portfolio() {
           width: 56px; height: 56px; border-radius: 8px; overflow: hidden;
           cursor: pointer; opacity: 0.45; border: 2px solid transparent; transition: all 0.3s;
         }
-        .thumbnail.active { opacity: 1; border-color: #00d4ff; transform: translateY(-4px); }
-        .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        /* ─── Skeleton Loading Cards ─── */
+        .skeleton-card {
+          min-height: 400px;
+          pointer-events: none;
+          position: relative;
+          overflow: hidden;
+        }
+        .skeleton-image-wrapper {
+          width: 100%;
+          height: 240px;
+          background: rgba(255,255,255,0.05);
+          border-radius: 16px 16px 0 0;
+        }
+        .skeleton-line {
+          height: 16px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 8px;
+          margin-bottom: 12px;
+        }
+        .skeleton-title { width: 60%; height: 24px; margin-bottom: 16px; }
+        .skeleton-text { width: 95%; }
+        .skeleton-text-short { width: 70%; }
+        .skeleton-badges { display: flex; gap: 8px; margin-top: 20px; }
+        .skeleton-badge { width: 64px; height: 24px; border-radius: 20px; background: rgba(255,255,255,0.06); }
+        
+        .shimmer {
+          position: relative;
+          overflow: hidden;
+        }
+        .shimmer::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(0, 212, 255, 0.12),
+            transparent
+          );
+          animation: shimmerSweep 1.8s infinite;
+        }
+        @keyframes shimmerSweep {
+          100% { transform: translateX(100%); }
+        }
 
         /* ─── Responsive ─── */
         @media (max-width: 1024px) {
