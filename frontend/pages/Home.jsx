@@ -253,8 +253,11 @@ function ProjectImage({ src, alt, className }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const [objectUrl, setObjectUrl] = useState(null);
+  const imgRef = useRef(null);
 
   useEffect(() => {
+    setLoaded(false);
+    setError(false);
     if (!src) return;
     if (typeof src === 'string' && src.startsWith('data:image/')) {
       try {
@@ -278,12 +281,19 @@ function ProjectImage({ src, alt, className }) {
     }
   }, [src]);
 
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, [objectUrl, src]);
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       {!loaded && !error && (
         <div className="shimmer" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.05)', zIndex: 1 }} />
       )}
       <img
+        ref={imgRef}
         src={objectUrl || src}
         alt={alt}
         className={className}
@@ -292,7 +302,7 @@ function ProjectImage({ src, alt, className }) {
         onLoad={() => setLoaded(true)}
         onError={() => { setError(true); setLoaded(true); }}
         style={{
-          opacity: loaded ? 1 : 0,
+          opacity: loaded || (imgRef.current && imgRef.current.complete) ? 1 : 0,
           transition: 'opacity 0.4s ease-out',
           width: '100%',
           height: '100%',
@@ -404,19 +414,19 @@ function Portfolio() {
     }
   };
 
-  /* ── Intersection Observer (unchanged) ── */
+  /* ── Intersection Observer (Instant visibility trigger) ── */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.style.opacity = 1;
-            entry.target.style.transform = "translateY(0)";
-            setActiveSection(entry.target.id);
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            if (entry.target.id) setActiveSection(entry.target.id);
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.02, rootMargin: '0px 0px -40px 0px' }
     );
     sectionRefs.current.forEach((ref) => ref && observer.observe(ref));
     return () => { sectionRefs.current.forEach((ref) => ref && observer.unobserve(ref)); };
